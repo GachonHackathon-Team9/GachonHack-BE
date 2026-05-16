@@ -26,9 +26,10 @@ public class PostController implements PostControllerDocs {
     @Override
     @GetMapping
     public ApiResponse<List<CommunityResponseDTO.PostSummaryDTO>> getPosts(
+            @AuthenticationPrincipal(expression = "user") User user,
             @RequestParam(required = false) PostType type
     ) {
-        return ApiResponse.onSuccess(CommunitySuccessCode.POST_LIST_SUCCESS, postService.getPosts(type));
+        return ApiResponse.onSuccess(CommunitySuccessCode.POST_LIST_SUCCESS, postService.getPosts(type, user.getId()));
     }
 
     @Override
@@ -45,8 +46,11 @@ public class PostController implements PostControllerDocs {
 
     @Override
     @GetMapping("/{postId}")
-    public ApiResponse<CommunityResponseDTO.PostDetailDTO> getPost(@PathVariable Long postId) {
-        return ApiResponse.onSuccess(CommunitySuccessCode.POST_DETAIL_SUCCESS, postService.getPostDetail(postId));
+    public ApiResponse<CommunityResponseDTO.PostDetailDTO> getPost(
+            @AuthenticationPrincipal(expression = "user") User user,
+            @PathVariable Long postId
+    ) {
+        return ApiResponse.onSuccess(CommunitySuccessCode.POST_DETAIL_SUCCESS, postService.getPostDetail(postId, user.getId()));
     }
 
     @Override

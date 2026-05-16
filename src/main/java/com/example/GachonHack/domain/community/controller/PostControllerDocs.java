@@ -24,6 +24,7 @@ public interface PostControllerDocs {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공")
     })
     ApiResponse<List<CommunityResponseDTO.PostSummaryDTO>> getPosts(
+            @AuthenticationPrincipal User user,
             @RequestParam(required = false) PostType type
     );
 
@@ -42,7 +43,10 @@ public interface PostControllerDocs {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "게시글 없음")
     })
-    ApiResponse<CommunityResponseDTO.PostDetailDTO> getPost(@PathVariable Long postId);
+    ApiResponse<CommunityResponseDTO.PostDetailDTO> getPost(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long postId
+    );
 
     @Operation(summary = "댓글 작성 API", description = "게시글에 댓글을 작성합니다.")
     @ApiResponses({

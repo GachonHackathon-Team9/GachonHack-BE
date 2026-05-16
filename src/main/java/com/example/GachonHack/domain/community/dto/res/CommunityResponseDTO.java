@@ -16,6 +16,7 @@ public class CommunityResponseDTO {
             PostType type,
             int viewCount,
             int likeCount,
+            boolean isLiked,
             LocalDateTime createdAt
     ) {}
 
@@ -28,6 +29,7 @@ public class CommunityResponseDTO {
             PostType type,
             int viewCount,
             int likeCount,
+            boolean isLiked,
             LocalDateTime createdAt,
             LocalDateTime updatedAt,
             List<CommentDTO> comments

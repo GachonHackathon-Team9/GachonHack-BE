@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -31,11 +32,14 @@ public class PostService {
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
-    public List<CommunityResponseDTO.PostSummaryDTO> getPosts(PostType type) {
+    public List<CommunityResponseDTO.PostSummaryDTO> getPosts(PostType type, Long userId) {
         List<Post> posts = type == null
                 ? postRepository.findAllWithAuthor()
                 : postRepository.findByTypeWithAuthor(type);
-        return posts.stream().map(this::toSummary).toList();
+        Set<Long> likedPostIds = postLikeRepository.findPostIdsByUserId(userId);
+        return posts.stream()
+                .map(post -> toSummary(post, likedPostIds.contains(post.getId())))
+                .toList();
     }
 
     @Transactional
@@ -55,15 +59,16 @@ public class PostService {
     }
 
     @Transactional
-    public CommunityResponseDTO.PostDetailDTO getPostDetail(Long postId) {
+    public CommunityResponseDTO.PostDetailDTO getPostDetail(Long postId, Long userId) {
         Post post = postRepository.findByIdWithAuthor(postId)
                 .orElseThrow(() -> new CommunityException(CommunityErrorCode.POST_NOT_FOUND));
         post.increaseViewCount();
+        boolean isLiked = postLikeRepository.existsByPostIdAndUserId(postId, userId);
         List<CommunityResponseDTO.CommentDTO> comments = postCommentRepository.findByPostWithAuthor(post)
                 .stream()
                 .map(this::toComment)
                 .toList();
-        return toDetail(post, comments);
+        return toDetail(post, comments, isLiked);
     }
 
     @Transactional
@@ -127,7 +132,7 @@ public class PostService {
                 .orElseThrow(() -> new CommunityException(CommunityErrorCode.USER_NOT_FOUND));
     }
 
-    private CommunityResponseDTO.PostSummaryDTO toSummary(Post post) {
+    private CommunityResponseDTO.PostSummaryDTO toSummary(Post post, boolean isLiked) {
         User author = post.getAuthor();
         return new CommunityResponseDTO.PostSummaryDTO(
                 post.getId(),
@@ -137,11 +142,12 @@ public class PostService {
                 post.getType(),
                 post.getViewCount(),
                 post.getLikeCount(),
+                isLiked,
                 post.getCreatedAt()
         );
     }
 
-    private CommunityResponseDTO.PostDetailDTO toDetail(Post post, List<CommunityResponseDTO.CommentDTO> comments) {
+    private CommunityResponseDTO.PostDetailDTO toDetail(Post post, List<CommunityResponseDTO.CommentDTO> comments, boolean isLiked) {
         User author = post.getAuthor();
         return new CommunityResponseDTO.PostDetailDTO(
                 post.getId(),
@@ -152,6 +158,7 @@ public class PostService {
                 post.getType(),
                 post.getViewCount(),
                 post.getLikeCount(),
+                isLiked,
                 post.getCreatedAt(),
                 post.getUpdatedAt(),
                 comments
