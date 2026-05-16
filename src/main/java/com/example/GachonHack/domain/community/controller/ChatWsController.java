@@ -4,7 +4,7 @@ import com.example.GachonHack.domain.community.dto.req.ChatRequestDTO;
 import com.example.GachonHack.domain.community.dto.res.ChatResponseDTO;
 import com.example.GachonHack.domain.community.service.ChatService;
 import com.example.GachonHack.domain.user.entity.User;
-import com.example.GachonHack.global.auth.CustomUserDetails;
+import com.example.GachonHack.global.config.websocket.StompSessionUserResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -66,20 +66,7 @@ public class ChatWsController {
             ChatRequestDTO.SendMessageReqDTO request,
             SimpMessageHeaderAccessor headerAccessor
     ) {
-        User user = resolveUser(headerAccessor);
+        User user = StompSessionUserResolver.resolve(headerAccessor);
         return chatService.sendMessage(user.getId(), spaceId, request);
-    }
-
-    /**
-     * STOMP 세션 Principal에서 {@link User} 추출.
-     * @see com.example.GachonHack.domain.map.controller.SpaceWsController#resolveUser(SimpMessageHeaderAccessor)
-     */
-    private User resolveUser(SimpMessageHeaderAccessor headerAccessor) {
-        Object principal = headerAccessor.getUser();
-        if (principal instanceof org.springframework.security.authentication.UsernamePasswordAuthenticationToken auth
-                && auth.getPrincipal() instanceof CustomUserDetails details) {
-            return details.getUser();
-        }
-        throw new IllegalStateException("인증된 사용자가 필요합니다.");
     }
 }

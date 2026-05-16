@@ -46,9 +46,15 @@ public interface BuddyMatchRequestRepository extends JpaRepository<BuddyMatchReq
             """)
     Optional<BuddyMatchRequest> findByIdWithUsers(@Param("id") Long id);
 
-    boolean existsByRequesterAndTargetAndStatusIn(
-            User requester,
-            User target,
-            List<BuddyMatchStatus> statuses
+    @Query("""
+            SELECT COUNT(r) > 0 FROM BuddyMatchRequest r
+            WHERE ((r.requester = :userA AND r.target = :userB)
+                OR (r.requester = :userB AND r.target = :userA))
+              AND r.status IN :statuses
+            """)
+    boolean existsActiveBetweenUsers(
+            @Param("userA") User userA,
+            @Param("userB") User userB,
+            @Param("statuses") List<BuddyMatchStatus> statuses
     );
 }

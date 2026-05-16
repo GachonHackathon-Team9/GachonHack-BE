@@ -40,7 +40,7 @@ public class ChatService {
                 .orElseThrow(() -> new CommunityException(CommunityErrorCode.USER_NOT_FOUND));
         Space space = spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new MapException(MapErrorCode.SPACE_NOT_FOUND));
-        ChatRoom room = chatRoomRepository.findFirstBySpaceAndActiveTrue(space)
+        ChatRoom room = chatRoomRepository.findFirstBySpaceAndActiveTrueOrderByCreatedAtDesc(space)
                 .orElseThrow(() -> new CommunityException(CommunityErrorCode.CHAT_ROOM_NOT_FOUND));
 
         ChatMessage message = chatMessageRepository.save(ChatMessage.builder()

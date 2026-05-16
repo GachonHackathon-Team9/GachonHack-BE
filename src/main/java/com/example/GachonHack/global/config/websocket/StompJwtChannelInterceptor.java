@@ -2,6 +2,7 @@ package com.example.GachonHack.global.config.websocket;
 
 import com.example.GachonHack.domain.user.entity.User;
 import com.example.GachonHack.domain.user.repository.UserRepository;
+import com.example.GachonHack.global.auth.CustomUserDetails;
 import com.example.GachonHack.global.config.security.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.Message;
@@ -112,9 +113,8 @@ public class StompJwtChannelInterceptor implements ChannelInterceptor {
     /**
      * STOMP CONNECT 프레임 처리: JWT를 검증하고 WebSocket 세션에 사용자 Principal을 바인딩.
      * <p>
-     * 성공 시 {@link UsernamePasswordAuthenticationToken}의 principal에
-     * {@link User} 엔티티가 들어가며, 이후 {@code SpaceWsController}, {@code ChatWsController}의
-     * {@code headerAccessor.getUser()}로 동일 사용자를 꺼냅니다.
+     * 성공 시 principal에 {@link CustomUserDetails}가 들어가며,
+     * {@link StompSessionUserResolver}로 {@link User}를 꺼냅니다.
      * </p>
      *
      * <p><b>실패 시 모두 {@link AccessDeniedException}</b> — 연결 자체가 거부됩니다.</p>
@@ -139,8 +139,11 @@ public class StompJwtChannelInterceptor implements ChannelInterceptor {
             Long userId = Long.valueOf(subject);
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new AccessDeniedException("User not found for token subject"));
-            UsernamePasswordAuthenticationToken auth =
-                    new UsernamePasswordAuthenticationToken(user, null, List.of());
+            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                    new CustomUserDetails(user),
+                    null,
+                    List.of()
+            );
             accessor.setUser(auth);
         } catch (AccessDeniedException ex) {
             throw ex;

@@ -1,12 +1,15 @@
 package com.example.GachonHack.global.config.websocket;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+
+import java.util.Arrays;
 
 /**
  * Spring WebSocket + STOMP 메시지 브로커 전역 설정 클래스.
@@ -57,6 +60,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final StompJwtChannelInterceptor stompJwtChannelInterceptor;
 
+    @Value("${app.websocket.allowed-origins:http://localhost:3000}")
+    private String allowedOrigins;
+
     /**
      * 인메모리 메시지 브로커(간단 브로커)의 목적지 prefix를 설정합니다.
      * <p>
@@ -89,15 +95,18 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
      * 그때 {@link StompJwtChannelInterceptor}가 JWT를 검증합니다.
      * </p>
      * <ul>
-     *   <li>{@code setAllowedOriginPatterns("*")} — CORS. 개발 중 프론트(localhost:3000 등) 허용.
-     *       운영 배포 시 실제 도메인으로 좁히는 것을 권장합니다.</li>
+ *   <li>{@code app.websocket.allowed-origins} — CSWSH 방지를 위해 와일드카드(*) 대신
+ *       허용 프론트 도메인 화이트리스트만 등록합니다.</li>
      *   <li>{@code withSockJS()} — 순수 WebSocket 실패 시 SockJS fallback 활성화.</li>
      * </ul>
      */
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws/spaces", "/ws/chat")
-                .setAllowedOriginPatterns("*")
+                .setAllowedOriginPatterns(Arrays.stream(allowedOrigins.split(","))
+                        .map(String::trim)
+                        .filter(origin -> !origin.isEmpty())
+                        .toArray(String[]::new))
                 .withSockJS();
     }
 

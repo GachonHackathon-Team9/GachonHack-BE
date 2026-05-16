@@ -37,12 +37,11 @@ public class MentoringService {
             CommunityRequestDTO.MentoringRequestCreateReqDTO request
     ) {
         User requester = findUser(requesterId);
-        User target = findUser(request.getTargetUserId());
+        User target = findUser(request.targetUserId());
         if (requester.getId().equals(target.getId())) {
             throw new CommunityException(CommunityErrorCode.SELF_MATCH_NOT_ALLOWED);
         }
-        if (buddyMatchRequestRepository.existsByRequesterAndTargetAndStatusIn(
-                requester, target, ACTIVE_STATUSES)) {
+        if (buddyMatchRequestRepository.existsActiveBetweenUsers(requester, target, ACTIVE_STATUSES)) {
             throw new CommunityException(CommunityErrorCode.DUPLICATE_MATCH_REQUEST);
         }
         Long missionId = resolveMissionId(request.postId());

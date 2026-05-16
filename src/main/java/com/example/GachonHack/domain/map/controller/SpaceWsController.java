@@ -4,7 +4,7 @@ import com.example.GachonHack.domain.map.dto.req.MapRequestDTO;
 import com.example.GachonHack.domain.map.dto.res.MapWsResponseDTO;
 import com.example.GachonHack.domain.map.service.UserPresenceService;
 import com.example.GachonHack.domain.user.entity.User;
-import com.example.GachonHack.global.auth.CustomUserDetails;
+import com.example.GachonHack.global.config.websocket.StompSessionUserResolver;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -74,24 +74,7 @@ public class SpaceWsController {
             @Valid MapRequestDTO.MoveToPositionReqDTO request,
             SimpMessageHeaderAccessor headerAccessor
     ) {
-        User user = resolveUser(headerAccessor);
+        User user = StompSessionUserResolver.resolve(headerAccessor);
         return userPresenceService.moveToPosition(user.getId(), spaceId, request);
-    }
-
-    /**
-     * STOMP 세션에 바인딩된 Spring Security 인증 객체에서 {@link User} 엔티티 추출.
-     * <p>
-     * Principal은 {@link StompJwtChannelInterceptor}가 CONNECT 시 설정한
-     * {@link org.springframework.security.authentication.UsernamePasswordAuthenticationToken}입니다.
-     * 인증이 없으면 인터셉터 단계에서 이미 막혀야 하며, 만약 도달했다면 서버 설정 버그로 간주합니다.
-     * </p>
-     */
-    private User resolveUser(SimpMessageHeaderAccessor headerAccessor) {
-        Object principal = headerAccessor.getUser();
-        if (principal instanceof org.springframework.security.authentication.UsernamePasswordAuthenticationToken auth
-                && auth.getPrincipal() instanceof CustomUserDetails details) {
-            return details.getUser();
-        }
-        throw new IllegalStateException("인증된 사용자가 필요합니다.");
     }
 }

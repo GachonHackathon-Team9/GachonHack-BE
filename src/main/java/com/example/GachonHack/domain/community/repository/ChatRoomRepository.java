@@ -10,5 +10,5 @@ import java.util.Optional;
 @Repository
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
-    Optional<ChatRoom> findFirstBySpaceAndActiveTrue(Space space);
+    Optional<ChatRoom> findFirstBySpaceAndActiveTrueOrderByCreatedAtDesc(Space space);
 }

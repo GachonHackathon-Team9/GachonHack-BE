@@ -60,9 +60,11 @@ public class PostService {
 
     @Transactional
     public CommunityResponseDTO.PostDetailDTO getPostDetail(Long postId, Long userId) {
+        if (postRepository.incrementViewCount(postId) == 0) {
+            throw new CommunityException(CommunityErrorCode.POST_NOT_FOUND);
+        }
         Post post = postRepository.findByIdWithAuthor(postId)
                 .orElseThrow(() -> new CommunityException(CommunityErrorCode.POST_NOT_FOUND));
-        post.increaseViewCount();
         boolean isLiked = postLikeRepository.existsByPostIdAndUserId(postId, userId);
         List<CommunityResponseDTO.CommentDTO> comments = postCommentRepository.findByPostWithAuthor(post)
                 .stream()
@@ -99,8 +101,12 @@ public class PostService {
             throw new CommunityException(CommunityErrorCode.ALREADY_LIKED);
         }
         postLikeRepository.save(PostLike.builder().post(post).user(user).build());
-        post.increaseLikeCount();
-        return new CommunityResponseDTO.PostLikeResDTO(post.getId(), post.getLikeCount());
+        if (postRepository.incrementLikeCount(postId) == 0) {
+            throw new CommunityException(CommunityErrorCode.POST_NOT_FOUND);
+        }
+        Post updated = postRepository.findById(postId)
+                .orElseThrow(() -> new CommunityException(CommunityErrorCode.POST_NOT_FOUND));
+        return new CommunityResponseDTO.PostLikeResDTO(updated.getId(), updated.getLikeCount());
     }
 
     private void validateCommentPermission(User author, Post post) {

@@ -1,5 +1,7 @@
 package com.example.GachonHack.domain.map.service;
 
+import com.example.GachonHack.domain.community.exception.CommunityException;
+import com.example.GachonHack.domain.community.exception.code.CommunityErrorCode;
 import com.example.GachonHack.domain.map.dto.req.MapRequestDTO;
 import com.example.GachonHack.domain.map.dto.res.MapWsResponseDTO;
 import com.example.GachonHack.domain.map.entity.Space;
@@ -10,9 +12,8 @@ import com.example.GachonHack.domain.map.repository.SpaceRepository;
 import com.example.GachonHack.domain.map.repository.UserPresenceRepository;
 import com.example.GachonHack.domain.user.entity.User;
 import com.example.GachonHack.domain.user.repository.UserRepository;
-import com.example.GachonHack.domain.community.exception.CommunityException;
-import com.example.GachonHack.domain.community.exception.code.CommunityErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +31,10 @@ public class UserPresenceService {
             Long spaceId,
             MapRequestDTO.MoveToPositionReqDTO request
     ) {
+        if (request.targetX() == null || request.targetY() == null) {
+            throw new MapException(MapErrorCode.INVALID_COORDINATES);
+        }
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CommunityException(CommunityErrorCode.USER_NOT_FOUND));
         Space space = spaceRepository.findById(spaceId)
@@ -38,10 +43,7 @@ public class UserPresenceService {
         float targetX = request.targetX();
         float targetY = request.targetY();
 
-        UserPresence presence = userPresenceRepository.findByUser(user)
-                .orElseGet(() -> UserPresence.builder().user(user).space(space).build());
-        presence.moveTo(space, targetX, targetY);
-        userPresenceRepository.save(presence);
+        upsertPresence(user, space, targetX, targetY);
 
         return new MapWsResponseDTO.PositionBroadcastDTO(
                 user.getId(),
@@ -50,5 +52,20 @@ public class UserPresenceService {
                 targetX,
                 targetY
         );
+    }
+
+    private void upsertPresence(User user, Space space, float targetX, float targetY) {
+        try {
+            savePresence(user, space, targetX, targetY);
+        } catch (DataIntegrityViolationException ex) {
+            savePresence(user, space, targetX, targetY);
+        }
+    }
+
+    private void savePresence(User user, Space space, float targetX, float targetY) {
+        UserPresence presence = userPresenceRepository.findByUser(user)
+                .orElseGet(() -> UserPresence.builder().user(user).space(space).build());
+        presence.moveTo(space, targetX, targetY);
+        userPresenceRepository.save(presence);
     }
 }
