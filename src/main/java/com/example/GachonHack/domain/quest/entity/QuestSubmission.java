@@ -32,7 +32,7 @@ public class QuestSubmission extends BaseEntity {
     @JoinColumn(name = "team_id")
     private QuestTeam team;
 
-    @Column(name = "proof_image_url", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "proof_image_url", columnDefinition = "TEXT")
     private String proofImageUrl;
 
     @Enumerated(EnumType.STRING)
