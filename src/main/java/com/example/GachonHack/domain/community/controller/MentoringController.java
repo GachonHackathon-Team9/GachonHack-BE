@@ -17,7 +17,7 @@ import java.util.List;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/mentoring")
+@RequestMapping({"/api/mentoring", "/mentoring"})
 public class MentoringController implements MentoringControllerDocs {
 
     private final MentoringService mentoringService;

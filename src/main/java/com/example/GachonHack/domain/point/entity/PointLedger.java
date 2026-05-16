@@ -7,7 +7,13 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "point_ledger")
+@Table(
+        name = "point_ledger",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_point_ledger_quest_reward_ref",
+                columnNames = {"user_id", "reason", "ref_type", "ref_id"}
+        )
+)
 @Builder
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

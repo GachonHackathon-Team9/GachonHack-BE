@@ -1,5 +1,6 @@
 package com.example.GachonHack.domain.community.entity;
 
+import com.example.GachonHack.domain.community.enums.PostAuthority;
 import com.example.GachonHack.domain.community.enums.PostType;
 import com.example.GachonHack.domain.user.entity.User;
 import com.example.GachonHack.global.entity.BaseEntity;
@@ -40,11 +41,11 @@ public class Post extends BaseEntity {
     @Column(length = 20)
     private PostType type;
 
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private PostAuthority authority;
+
     public void increaseViewCount() {
         this.viewCount++;
-    }
-
-    public void increaseLikeCount() {
-        this.likeCount++;
     }
 }

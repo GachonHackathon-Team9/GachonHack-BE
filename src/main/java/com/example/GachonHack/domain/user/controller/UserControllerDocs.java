@@ -29,7 +29,7 @@ public interface UserControllerDocs {
 
     @Operation(
             summary = "마이페이지 조회 API",
-            description = "닉네임, 본명, 학번, 학년, 보유 뱃지 목록, 보유 칭호 목록을 반환합니다."
+            description = "닉네임, 본명, 학번, 학년, 포인트, 보유 칭호 목록을 반환합니다."
     )
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "마이페이지 조회 성공"),
@@ -37,4 +37,10 @@ public interface UserControllerDocs {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사용자 없음")
     })
     ApiResponse<UserResponseDTO.MyPageResDTO> getMyPage(@AuthenticationPrincipal User user);
+
+    @Operation(summary = "칭호 장착 API", description = "보유 칭호 중 하나를 장착합니다.")
+    ApiResponse<Void> updateEquipment(
+            @AuthenticationPrincipal User user,
+            @Valid @RequestBody UserRequestDTO.EquipmentUpdateReqDTO request
+    );
 }

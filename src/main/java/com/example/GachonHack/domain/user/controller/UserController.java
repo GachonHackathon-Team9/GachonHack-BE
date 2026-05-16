@@ -10,10 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Validated
 @RestController
@@ -23,7 +20,7 @@ public class UserController implements UserControllerDocs {
     private final UserService userService;
 
     @Override
-    @PostMapping("/api/onboarding")
+    @PostMapping({"/api/onboarding", "/user/onboarding"})
     public ApiResponse<Void> createUserOnboarding(
             @AuthenticationPrincipal(expression = "user") User user,
             @Valid @RequestBody UserRequestDTO.OnboardingReqDTO request
@@ -33,10 +30,20 @@ public class UserController implements UserControllerDocs {
     }
 
     @Override
-    @GetMapping("/api/users/me")
+    @GetMapping({"/api/users/me", "/users/me"})
     public ApiResponse<UserResponseDTO.MyPageResDTO> getMyPage(
             @AuthenticationPrincipal(expression = "user") User user
     ) {
         return ApiResponse.onSuccess(UserSuccessCode.MYPAGE_SUCCESS, userService.getMyPage(user.getId()));
+    }
+
+    @Override
+    @PatchMapping({"/api/users/me/equipment", "/users/me/equipment"})
+    public ApiResponse<Void> updateEquipment(
+            @AuthenticationPrincipal(expression = "user") User user,
+            @Valid @RequestBody UserRequestDTO.EquipmentUpdateReqDTO request
+    ) {
+        userService.updateEquipment(user.getId(), request);
+        return ApiResponse.onSuccess(UserSuccessCode.EQUIPMENT_UPDATE_SUCCESS, null);
     }
 }

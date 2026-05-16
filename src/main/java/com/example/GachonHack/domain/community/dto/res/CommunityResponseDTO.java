@@ -4,7 +4,6 @@ import com.example.GachonHack.domain.community.enums.BuddyMatchStatus;
 import com.example.GachonHack.domain.community.enums.PostType;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 public class CommunityResponseDTO {
 
@@ -16,7 +15,6 @@ public class CommunityResponseDTO {
             PostType type,
             int viewCount,
             int likeCount,
-            boolean isLiked,
             LocalDateTime createdAt
     ) {}
 
@@ -29,30 +27,11 @@ public class CommunityResponseDTO {
             PostType type,
             int viewCount,
             int likeCount,
-            boolean isLiked,
             LocalDateTime createdAt,
-            LocalDateTime updatedAt,
-            List<CommentDTO> comments
-    ) {}
-
-    public record CommentDTO(
-            Long id,
-            String authorNickname,
-            String authorRealName,
-            String body,
-            LocalDateTime createdAt
-    ) {}
-
-    public record PostLikeResDTO(
-            Long postId,
-            int likeCount
+            LocalDateTime updatedAt
     ) {}
 
     public record PostCreateResDTO(
-            Long id
-    ) {}
-
-    public record CommentCreateResDTO(
             Long id
     ) {}
 
@@ -64,12 +43,13 @@ public class CommunityResponseDTO {
             Long targetId,
             String targetNickname,
             String targetRealName,
-            Long postId,
             BuddyMatchStatus status,
-            LocalDateTime createdAt
+            LocalDateTime createdAt,
+            Long chatSpaceId
     ) {}
 
     public record MentoringRequestCreateResDTO(
-            Long id
+            Long id,
+            Long chatSpaceId
     ) {}
 }

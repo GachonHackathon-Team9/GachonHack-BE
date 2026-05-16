@@ -31,6 +31,6 @@ public class ShopOrder extends BaseEntity {
     private Integer pricePoints;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(name = "order_status", nullable = false, length = 20)
     private OrderStatus status;
 }

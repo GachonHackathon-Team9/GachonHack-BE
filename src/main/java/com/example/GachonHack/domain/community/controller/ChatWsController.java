@@ -34,6 +34,7 @@ import org.springframework.stereotype.Controller;
  * <h2>DB 전제 조건</h2>
  * 해당 {@code spaceId}에 연결된 {@link com.example.GachonHack.domain.community.entity.ChatRoom}
  * (active=true)가 DB에 있어야 합니다. 없으면 {@code CHAT_ROOM_NOT_FOUND}.
+ * 짝선짝후 1:1 채팅은 매칭 생성 시 만들어진 전용 {@code chatSpaceId}(공간 PK)를 사용합니다.
  *
  * <h2>저장소</h2>
  * {@link com.example.GachonHack.domain.community.entity.ChatMessage} (테이블 chat_messages)

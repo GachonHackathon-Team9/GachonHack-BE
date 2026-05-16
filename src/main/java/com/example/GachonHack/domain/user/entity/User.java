@@ -21,6 +21,10 @@ public class User extends BaseEntity {
     @Column(name = "kakao_id", length = 64, unique = true)
     private String kakaoId;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "cat_type", length = 20)
+    private CatType catType;
+
     @Column(name = "real_name", length = 50)
     private String realName;
 

@@ -15,12 +15,18 @@ import com.example.GachonHack.domain.map.repository.SpaceRepository;
 import com.example.GachonHack.domain.user.entity.User;
 import com.example.GachonHack.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class ChatService {
+
+    private static final Pageable FIRST_ROOM = PageRequest.of(0, 1);
 
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
@@ -40,15 +46,38 @@ public class ChatService {
                 .orElseThrow(() -> new CommunityException(CommunityErrorCode.USER_NOT_FOUND));
         Space space = spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new MapException(MapErrorCode.SPACE_NOT_FOUND));
-        ChatRoom room = chatRoomRepository.findFirstBySpaceAndActiveTrueOrderByCreatedAtDesc(space)
-                .orElseThrow(() -> new CommunityException(CommunityErrorCode.CHAT_ROOM_NOT_FOUND));
-
+        ChatRoom room = resolveRoom(space);
+        validateChatAccess(room, userId);
         ChatMessage message = chatMessageRepository.save(ChatMessage.builder()
                 .room(room)
                 .user(user)
                 .body(request.body().trim())
                 .build());
+        return toBroadcast(message, room, user);
+    }
 
+    private ChatRoom resolveRoom(Space space) {
+        List<ChatRoom> rooms = MentoringChatService.isMentoringSpace(space)
+                ? chatRoomRepository.findActiveBySpaceWithParticipants(space, FIRST_ROOM)
+                : chatRoomRepository.findActivePublicSpaceRooms(space, FIRST_ROOM);
+        return rooms.stream()
+                .findFirst()
+                .orElseThrow(() -> new CommunityException(CommunityErrorCode.CHAT_ROOM_NOT_FOUND));
+    }
+
+    private void validateChatAccess(ChatRoom room, Long userId) {
+        if (room.getBuddyMatch() == null) {
+            return;
+        }
+        var match = room.getBuddyMatch();
+        boolean participant = match.getRequester().getId().equals(userId)
+                || match.getTarget().getId().equals(userId);
+        if (!participant) {
+            throw new CommunityException(CommunityErrorCode.MATCH_REQUEST_FORBIDDEN);
+        }
+    }
+
+    private ChatResponseDTO.MessageBroadcastDTO toBroadcast(ChatMessage message, ChatRoom room, User user) {
         return new ChatResponseDTO.MessageBroadcastDTO(
                 message.getId(),
                 room.getId(),

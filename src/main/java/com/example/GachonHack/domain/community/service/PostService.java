@@ -3,13 +3,9 @@ package com.example.GachonHack.domain.community.service;
 import com.example.GachonHack.domain.community.dto.req.CommunityRequestDTO;
 import com.example.GachonHack.domain.community.dto.res.CommunityResponseDTO;
 import com.example.GachonHack.domain.community.entity.Post;
-import com.example.GachonHack.domain.community.entity.PostComment;
-import com.example.GachonHack.domain.community.entity.PostLike;
 import com.example.GachonHack.domain.community.enums.PostType;
 import com.example.GachonHack.domain.community.exception.CommunityException;
 import com.example.GachonHack.domain.community.exception.code.CommunityErrorCode;
-import com.example.GachonHack.domain.community.repository.PostCommentRepository;
-import com.example.GachonHack.domain.community.repository.PostLikeRepository;
 import com.example.GachonHack.domain.community.repository.PostRepository;
 import com.example.GachonHack.domain.user.entity.User;
 import com.example.GachonHack.domain.user.repository.UserRepository;
@@ -18,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -27,8 +22,6 @@ public class PostService {
     private static final short FRESHMAN_GRADE = 1;
 
     private final PostRepository postRepository;
-    private final PostCommentRepository postCommentRepository;
-    private final PostLikeRepository postLikeRepository;
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
@@ -36,9 +29,8 @@ public class PostService {
         List<Post> posts = type == null
                 ? postRepository.findAllWithAuthor()
                 : postRepository.findByTypeWithAuthor(type);
-        Set<Long> likedPostIds = postLikeRepository.findPostIdsByUserId(userId);
         return posts.stream()
-                .map(post -> toSummary(post, likedPostIds.contains(post.getId())))
+                .map(this::toSummary)
                 .toList();
     }
 
@@ -65,72 +57,11 @@ public class PostService {
         }
         Post post = postRepository.findByIdWithAuthor(postId)
                 .orElseThrow(() -> new CommunityException(CommunityErrorCode.POST_NOT_FOUND));
-        boolean isLiked = postLikeRepository.existsByPostIdAndUserId(postId, userId);
-        List<CommunityResponseDTO.CommentDTO> comments = postCommentRepository.findByPostWithAuthor(post)
-                .stream()
-                .map(this::toComment)
-                .toList();
-        return toDetail(post, comments, isLiked);
-    }
-
-    @Transactional
-    public CommunityResponseDTO.CommentCreateResDTO createComment(
-            Long userId,
-            Long postId,
-            CommunityRequestDTO.CommentCreateReqDTO request
-    ) {
-        User author = findUser(userId);
-        Post post = postRepository.findByIdWithAuthor(postId)
-                .orElseThrow(() -> new CommunityException(CommunityErrorCode.POST_NOT_FOUND));
-        validateCommentPermission(author, post);
-        PostComment comment = PostComment.builder()
-                .post(post)
-                .author(author)
-                .body(request.body())
-                .build();
-        PostComment saved = postCommentRepository.save(comment);
-        return new CommunityResponseDTO.CommentCreateResDTO(saved.getId());
-    }
-
-    @Transactional
-    public CommunityResponseDTO.PostLikeResDTO likePost(Long userId, Long postId) {
-        User user = findUser(userId);
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new CommunityException(CommunityErrorCode.POST_NOT_FOUND));
-        if (postLikeRepository.existsByPostAndUser(post, user)) {
-            throw new CommunityException(CommunityErrorCode.ALREADY_LIKED);
-        }
-        postLikeRepository.save(PostLike.builder().post(post).user(user).build());
-        if (postRepository.incrementLikeCount(postId) == 0) {
-            throw new CommunityException(CommunityErrorCode.POST_NOT_FOUND);
-        }
-        Post updated = postRepository.findById(postId)
-                .orElseThrow(() -> new CommunityException(CommunityErrorCode.POST_NOT_FOUND));
-        return new CommunityResponseDTO.PostLikeResDTO(updated.getId(), updated.getLikeCount());
-    }
-
-    private void validateCommentPermission(User author, Post post) {
-        if (post.getType() != PostType.MENTORING) {
-            return;
-        }
-        if (isSenior(author)) {
-            if (post.getAuthor().getId().equals(author.getId())) {
-                throw new CommunityException(CommunityErrorCode.COMMENT_NOT_ALLOWED);
-            }
-            return;
-        }
-        if (isFreshman(author) && post.getAuthor().getId().equals(author.getId())) {
-            return;
-        }
-        throw new CommunityException(CommunityErrorCode.COMMENT_NOT_ALLOWED);
+        return toDetail(post);
     }
 
     private boolean isFreshman(User user) {
         return user.getGrade() != null && user.getGrade() == FRESHMAN_GRADE;
-    }
-
-    private boolean isSenior(User user) {
-        return user.getGrade() != null && user.getGrade() > FRESHMAN_GRADE;
     }
 
     private User findUser(Long userId) {
@@ -138,7 +69,7 @@ public class PostService {
                 .orElseThrow(() -> new CommunityException(CommunityErrorCode.USER_NOT_FOUND));
     }
 
-    private CommunityResponseDTO.PostSummaryDTO toSummary(Post post, boolean isLiked) {
+    private CommunityResponseDTO.PostSummaryDTO toSummary(Post post) {
         User author = post.getAuthor();
         return new CommunityResponseDTO.PostSummaryDTO(
                 post.getId(),
@@ -148,12 +79,11 @@ public class PostService {
                 post.getType(),
                 post.getViewCount(),
                 post.getLikeCount(),
-                isLiked,
                 post.getCreatedAt()
         );
     }
 
-    private CommunityResponseDTO.PostDetailDTO toDetail(Post post, List<CommunityResponseDTO.CommentDTO> comments, boolean isLiked) {
+    private CommunityResponseDTO.PostDetailDTO toDetail(Post post) {
         User author = post.getAuthor();
         return new CommunityResponseDTO.PostDetailDTO(
                 post.getId(),
@@ -164,21 +94,8 @@ public class PostService {
                 post.getType(),
                 post.getViewCount(),
                 post.getLikeCount(),
-                isLiked,
                 post.getCreatedAt(),
-                post.getUpdatedAt(),
-                comments
-        );
-    }
-
-    private CommunityResponseDTO.CommentDTO toComment(PostComment comment) {
-        User author = comment.getAuthor();
-        return new CommunityResponseDTO.CommentDTO(
-                comment.getId(),
-                author.getNickname(),
-                author.getRealName(),
-                comment.getBody(),
-                comment.getCreatedAt()
+                post.getUpdatedAt()
         );
     }
 }
