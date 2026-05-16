@@ -42,11 +42,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String refreshToken = jwtUtil.createRefreshToken(userId);
         String refreshTokenHash = TokenHashUtil.hash(refreshToken);
 
-        refreshTokenRepository.findById(userId)
-                .ifPresentOrElse(
-                        saved -> saved.updateTokenHash(refreshTokenHash),
-                        () -> refreshTokenRepository.save(RefreshToken.of(userId, refreshTokenHash))
-                );
+        refreshTokenRepository.save(RefreshToken.of(userId, refreshTokenHash));
 
         response.addHeader("Set-Cookie", CookieUtil.accessToken(accessToken).toString());
         response.addHeader("Set-Cookie", CookieUtil.refreshToken(refreshToken).toString());
