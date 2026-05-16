@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/quests")
+@RequestMapping({"/api/quests", "/quests"})
 public class QuestController implements QuestControllerDocs {
 
     private final QuestService questService;
