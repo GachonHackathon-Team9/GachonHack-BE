@@ -43,6 +43,12 @@ jwt:
 oauth2:
   redirect-uri: https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_CLIENT_ID}&redirect_uri=${KAKAO_REDIRECT_URI}&response_type=code
 
+quest:
+  daily:
+    zone: Asia/Seoul
+    active-count: 3
+    refresh-cron: "0 0 0 * * *"
+
 app:
   websocket:
     # 쉼표 구분. 운영: WEBSOCKET_ALLOWED_ORIGINS=https://your-frontend.com

@@ -5,10 +5,14 @@ import com.example.GachonHack.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 @Entity
-@Table(name = "user_titles")
+@Table(
+        name = "user_titles",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_user_title_user_title",
+                columnNames = {"user_id", "title_id"}
+        )
+)
 @Builder
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -33,7 +37,10 @@ public class UserTitle extends BaseEntity {
     @Column(name = "is_equipped", nullable = false)
     private boolean equipped;
 
+    public void setEquipped(boolean equipped) {
+        this.equipped = equipped;
     public void toggleEquipped() {
         this.equipped = !this.equipped;
+
     }
 }

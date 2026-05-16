@@ -46,4 +46,8 @@ public class Quest extends BaseEntity {
 
     @Column(name = "is_active", nullable = false)
     private boolean active;
+
+    public void updateActive(boolean active) {
+        this.active = active;
+    }
 }

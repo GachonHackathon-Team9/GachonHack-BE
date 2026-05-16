@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/spaces")
+@RequestMapping({"/api/spaces", "/spaces"})
 public class SpaceController implements SpaceControllerDocs {
 
     private final SpaceService spaceService;

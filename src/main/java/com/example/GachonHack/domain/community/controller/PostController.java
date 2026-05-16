@@ -18,7 +18,7 @@ import java.util.List;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/posts")
+@RequestMapping({"/api/posts", "/posts"})
 public class PostController implements PostControllerDocs {
 
     private final PostService postService;
@@ -51,30 +51,5 @@ public class PostController implements PostControllerDocs {
             @PathVariable Long postId
     ) {
         return ApiResponse.onSuccess(CommunitySuccessCode.POST_DETAIL_SUCCESS, postService.getPostDetail(postId, user.getId()));
-    }
-
-    @Override
-    @PostMapping("/{postId}/comments")
-    public ApiResponse<CommunityResponseDTO.CommentCreateResDTO> createComment(
-            @AuthenticationPrincipal(expression = "user") User user,
-            @PathVariable Long postId,
-            @Valid @RequestBody CommunityRequestDTO.CommentCreateReqDTO request
-    ) {
-        return ApiResponse.onSuccess(
-                CommunitySuccessCode.COMMENT_CREATE_SUCCESS,
-                postService.createComment(user.getId(), postId, request)
-        );
-    }
-
-    @Override
-    @PostMapping("/{postId}/like")
-    public ApiResponse<CommunityResponseDTO.PostLikeResDTO> likePost(
-            @AuthenticationPrincipal(expression = "user") User user,
-            @PathVariable Long postId
-    ) {
-        return ApiResponse.onSuccess(
-                CommunitySuccessCode.POST_LIKE_SUCCESS,
-                postService.likePost(user.getId(), postId)
-        );
     }
 }

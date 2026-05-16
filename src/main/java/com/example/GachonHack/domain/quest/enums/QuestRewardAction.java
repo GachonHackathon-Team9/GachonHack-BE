@@ -1,5 +1,5 @@
 package com.example.GachonHack.domain.quest.enums;
 
-public enum TeamMemberRole {
-    LEADER, MEMBER
+public enum QuestRewardAction {
+    APPROVE, REJECT
 }

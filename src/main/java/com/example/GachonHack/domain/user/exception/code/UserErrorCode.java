@@ -10,7 +10,10 @@ import org.springframework.http.HttpStatus;
 public enum UserErrorCode implements BaseCode {
     NOT_FOUND(HttpStatus.NOT_FOUND,
             "USER404_1",
-            "해당 사용자를 찾을 수 없습니다.");
+            "해당 사용자를 찾을 수 없습니다."),
+    TITLE_NOT_OWNED(HttpStatus.BAD_REQUEST,
+            "USER400_1",
+            "보유하지 않은 칭호입니다.");
 
     private final HttpStatus status;
     private final String code;

@@ -26,18 +26,9 @@ public class BuddyMatchRequest extends BaseEntity {
     @JoinColumn(name = "target_id", nullable = false)
     private User target;
 
-    @Column(name = "mission_id")
-    private Long missionId;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private BuddyMatchStatus status;
-
-    @Column(name = "requester_grade")
-    private Short requesterGrade;
-
-    @Column(name = "target_grade")
-    private Short targetGrade;
 
     public void respond(BuddyMatchStatus status) {
         this.status = status;
