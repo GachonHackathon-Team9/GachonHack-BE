@@ -16,19 +16,20 @@ public class RefreshToken {
     @Id
     private Long userId;
 
-    @Column(nullable = false, length = 1000)
-    private String token;
+    // 토큰 원문이 아닌 SHA-256 해시값만 저장
+    @Column(name = "token_hash", nullable = false, length = 64)
+    private String tokenHash;
 
-    private RefreshToken(Long userId, String token){
+    private RefreshToken(Long userId, String tokenHash) {
         this.userId = userId;
-        this.token = token;
+        this.tokenHash = tokenHash;
     }
 
-    public static RefreshToken of(Long userId, String token) {
-        return new RefreshToken(userId, token);
+    public static RefreshToken of(Long userId, String tokenHash) {
+        return new RefreshToken(userId, tokenHash);
     }
 
-    public void updateToken(String token){
-        this.token = token;
+    public void updateTokenHash(String tokenHash) {
+        this.tokenHash = tokenHash;
     }
 }

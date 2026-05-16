@@ -5,6 +5,7 @@ import com.example.GachonHack.global.auth.entity.RefreshToken;
 import com.example.GachonHack.global.auth.repository.RefreshTokenRepository;
 import com.example.GachonHack.global.config.security.jwt.JwtUtil;
 import com.example.GachonHack.global.util.CookieUtil;
+import com.example.GachonHack.global.util.TokenHashUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -39,11 +40,12 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         String accessToken = jwtUtil.createAccessToken(userId, role);
         String refreshToken = jwtUtil.createRefreshToken(userId);
+        String refreshTokenHash = TokenHashUtil.hash(refreshToken);
 
         refreshTokenRepository.findById(userId)
                 .ifPresentOrElse(
-                        saved -> saved.updateToken(refreshToken),
-                        () -> refreshTokenRepository.save(RefreshToken.of(userId, refreshToken))
+                        saved -> saved.updateTokenHash(refreshTokenHash),
+                        () -> refreshTokenRepository.save(RefreshToken.of(userId, refreshTokenHash))
                 );
 
         response.addHeader("Set-Cookie", CookieUtil.accessToken(accessToken).toString());

@@ -10,6 +10,7 @@ import com.example.GachonHack.global.auth.exception.code.AuthErrorCode;
 import com.example.GachonHack.global.auth.repository.RefreshTokenRepository;
 import com.example.GachonHack.global.config.security.jwt.JwtUtil;
 import com.example.GachonHack.global.util.CookieUtil;
+import com.example.GachonHack.global.util.TokenHashUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,7 +27,6 @@ public class AuthService {
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
 
-    // AccessToken 재발급
     @Transactional
     public ResponseEntity<?> reissue(
             HttpServletRequest request,
@@ -43,7 +43,7 @@ public class AuthService {
         RefreshToken saved = refreshTokenRepository.findById(userId)
                 .orElseThrow(() -> new AuthException(AuthErrorCode.NOT_FOUND_REFRESH_TOKEN));
 
-        if (!saved.getToken().equals(refreshToken)) {
+        if (!saved.getTokenHash().equals(TokenHashUtil.hash(refreshToken))) {
             throw new AuthException(AuthErrorCode.NOT_FOUND);
         }
 
@@ -52,7 +52,7 @@ public class AuthService {
 
         String newAccess = jwtUtil.createAccessToken(userId, user.getRole().name());
         String newRefresh = jwtUtil.createRefreshToken(userId);
-        saved.updateToken(newRefresh);
+        saved.updateTokenHash(TokenHashUtil.hash(newRefresh));
 
         response.addHeader("Set-Cookie", CookieUtil.accessToken(newAccess).toString());
         response.addHeader("Set-Cookie", CookieUtil.refreshToken(newRefresh).toString());
