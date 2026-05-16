@@ -4,7 +4,6 @@ import com.example.GachonHack.domain.user.entity.User;
 import com.example.GachonHack.global.auth.entity.RefreshToken;
 import com.example.GachonHack.global.auth.repository.RefreshTokenRepository;
 import com.example.GachonHack.global.config.security.jwt.JwtUtil;
-import com.example.GachonHack.global.util.CookieUtil;
 import com.example.GachonHack.global.util.TokenHashUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
