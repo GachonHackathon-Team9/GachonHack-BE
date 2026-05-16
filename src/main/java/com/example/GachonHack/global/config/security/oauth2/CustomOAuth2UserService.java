@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +27,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             throw new OAuth2AuthenticationException("지원하지 않는 소셜 로그인입니다: " + registrationId);
         }
 
-        String socialId = String.valueOf(oAuth2User.getAttributes().get("id"));
+        Object idAttr = oAuth2User.getAttributes().get("id");
+        if (idAttr == null) {
+            throw new OAuth2AuthenticationException(new OAuth2Error("invalid_user_info"),
+                    "Kakao 사용자 정보에 id가 없습니다.");
+        }
+        String socialId = idAttr.toString();
 
         User user = userRepository.findBySocialId(socialId)
                 .orElseGet(() -> userRepository.save(

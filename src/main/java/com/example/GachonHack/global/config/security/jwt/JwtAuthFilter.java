@@ -51,31 +51,36 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         if (token != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            var claims = jwtUtil.validateToken(token);
+            try {
+                var claims = jwtUtil.validateToken(token);
 
-            Long userId = Long.valueOf(claims.getSubject());
+                String subject = claims.getSubject();
+                if (subject == null || subject.isBlank()) {
+                    throw new IllegalArgumentException("JWT sub is empty");
+                }
+                Long userId = Long.valueOf(subject);
 
-            User user = userRepository.findById(userId).orElse(null);
+                User user = userRepository.findById(userId).orElse(null);
 
-            if (user != null) {
-                CustomUserDetails userDetails =
-                        new CustomUserDetails(user);
+                if (user != null) {
+                    CustomUserDetails userDetails = new CustomUserDetails(user);
 
-                UsernamePasswordAuthenticationToken auth =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities()
-                        );
+                    UsernamePasswordAuthenticationToken auth =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    userDetails.getAuthorities()
+                            );
 
-                auth.setDetails(
-                        new WebAuthenticationDetailsSource()
-                                .buildDetails(request)
-                );
+                    auth.setDetails(
+                            new WebAuthenticationDetailsSource()
+                                    .buildDetails(request)
+                    );
 
-                SecurityContextHolder
-                        .getContext()
-                        .setAuthentication(auth);
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                }
+            } catch (Exception e) {
+                SecurityContextHolder.clearContext();
             }
         }
 
