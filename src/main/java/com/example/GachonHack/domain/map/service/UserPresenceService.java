@@ -25,23 +25,30 @@ public class UserPresenceService {
     private final UserRepository userRepository;
 
     @Transactional
-    public MapWsResponseDTO.MoveBroadcastDTO move(Long userId, Long spaceId, MapRequestDTO.MoveReqDTO request) {
+    public MapWsResponseDTO.PositionBroadcastDTO moveToPosition(
+            Long userId,
+            Long spaceId,
+            MapRequestDTO.MoveToPositionReqDTO request
+    ) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CommunityException(CommunityErrorCode.USER_NOT_FOUND));
         Space space = spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new MapException(MapErrorCode.SPACE_NOT_FOUND));
 
+        float targetX = request.targetX();
+        float targetY = request.targetY();
+
         UserPresence presence = userPresenceRepository.findByUser(user)
                 .orElseGet(() -> UserPresence.builder().user(user).space(space).build());
-        presence.move(space, request.posX(), request.posY());
+        presence.moveTo(space, targetX, targetY);
         userPresenceRepository.save(presence);
 
-        return new MapWsResponseDTO.MoveBroadcastDTO(
+        return new MapWsResponseDTO.PositionBroadcastDTO(
                 user.getId(),
                 user.getNickname(),
                 space.getId(),
-                request.posX(),
-                request.posY()
+                targetX,
+                targetY
         );
     }
 }

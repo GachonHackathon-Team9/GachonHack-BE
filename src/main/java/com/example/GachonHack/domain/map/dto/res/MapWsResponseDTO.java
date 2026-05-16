@@ -2,11 +2,11 @@ package com.example.GachonHack.domain.map.dto.res;
 
 public class MapWsResponseDTO {
 
-    public record MoveBroadcastDTO(
+    public record PositionBroadcastDTO(
             Long userId,
             String nickname,
             Long spaceId,
-            Float posX,
-            Float posY
+            Float targetX,
+            Float targetY
     ) {}
 }
