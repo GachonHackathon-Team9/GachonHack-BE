@@ -47,6 +47,9 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         response.addHeader("Set-Cookie", CookieUtil.accessToken(accessToken).toString());
         response.addHeader("Set-Cookie", CookieUtil.refreshToken(refreshToken).toString());
 
-        response.sendRedirect(redirectUri + "/swagger-ui/index.html");
+        String target = user.getNickname() == null
+                ? redirectUri + "/onboarding"
+                : redirectUri + "/home";
+        response.sendRedirect(target);
     }
 }
