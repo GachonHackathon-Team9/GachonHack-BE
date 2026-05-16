@@ -1,10 +1,14 @@
 package com.example.GachonHack.domain.user.enums;
 
-/**
- * ERD users.cat_type — 아바타 타입 (온보딩·설정에서 지정).
- */
 public enum CatType {
-    CAT_1,
-    CAT_2,
-    CAT_3
+    BLACK_CAT,
+    CALICO_CAT,
+    CHEESE_CAT,
+    COW_CAT,
+    RUSSIAN_CAT,
+    RUSSIAN_BLUE_CAT,
+    SCOTTISH_CAT,
+    SIAMESE_CAT,
+    TIE_CAT,
+    WHITE_CAT
 }

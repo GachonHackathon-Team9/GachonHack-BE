@@ -42,15 +42,20 @@ public class User extends BaseEntity {
     private Integer pointBalance = 0;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "cat_type", length = 20)
+    private CatType catType;
+
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     @Builder.Default
     private Role role = Role.USER;
 
-    public void completeProfile(String realName, String studentId, Short grade, String nickname) {
+    public void completeProfile(String realName, String studentId, Short grade, String nickname, CatType catType) {
         this.realName = realName;
         this.studentId = studentId;
         this.grade = grade;
         this.nickname = nickname;
+        this.catType = catType;
     }
 
     public void adjustPoint(int delta) {

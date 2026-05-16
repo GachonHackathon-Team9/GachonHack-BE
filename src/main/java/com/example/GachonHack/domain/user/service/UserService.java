@@ -4,6 +4,7 @@ import com.example.GachonHack.domain.user.dto.req.UserRequestDTO;
 import com.example.GachonHack.domain.user.dto.res.UserResponseDTO;
 import com.example.GachonHack.domain.user.entity.User;
 import com.example.GachonHack.domain.user.entity.UserTitle;
+import com.example.GachonHack.domain.user.enums.CatType;
 import com.example.GachonHack.domain.user.exception.UserException;
 import com.example.GachonHack.domain.user.exception.code.UserErrorCode;
 import com.example.GachonHack.domain.user.repository.UserRepository;
@@ -29,7 +30,8 @@ public class UserService {
                 .orElseThrow(() -> new UserException(UserErrorCode.NOT_FOUND));
 
         String nickname = generateUniqueNickname();
-        user.completeProfile(request.real_name(), request.student_id(), request.grade(), nickname);
+        CatType catType = randomCatType();
+        user.completeProfile(request.real_name(), request.student_id(), request.grade(), nickname, catType);
     }
 
     @Transactional(readOnly = true)
@@ -65,6 +67,10 @@ public class UserService {
         for (UserTitle userTitle : userTitleRepository.findByUser(user)) {
             userTitle.setEquipped(userTitle.getId().equals(selected.getId()));
         }
+
+    private CatType randomCatType() {
+        CatType[] types = CatType.values();
+        return types[random.nextInt(types.length)];
     }
 
     private String generateUniqueNickname() {
