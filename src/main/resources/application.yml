@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: GachonHack
+
+  datasource:
+    # Railway에서 준 호스트와 포트, 데이터베이스명을 아래 형식에 맞게 넣어야 해
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Seoul
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update # 👈 Entity를 보고 자동으로 클라우드 DB에 테이블을 만들어줌
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
