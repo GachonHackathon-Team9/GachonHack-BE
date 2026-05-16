@@ -36,7 +36,7 @@ public class UserTitle extends BaseEntity {
     @Column(name = "acquired_at", nullable = false)
     private LocalDateTime acquiredAt;
 
-    public void toggleEquipped() {
-        this.equipped = !this.equipped;
+    public void setEquipped(boolean equipped) {
+        this.equipped = equipped;
     }
 }

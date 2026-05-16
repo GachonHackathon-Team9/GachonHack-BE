@@ -16,5 +16,10 @@ public class UserRequestDTO {
 
             @NotNull(message = "학년은 필수 입력 사항입니다.")
             Short grade
-    ){}
+    ) {}
+
+    public record EquipmentUpdateReqDTO(
+            @NotNull(message = "장착할 칭호 ID는 필수입니다.")
+            Long userTitleId
+    ) {}
 }

@@ -3,6 +3,7 @@ package com.example.GachonHack.domain.user.service;
 import com.example.GachonHack.domain.user.dto.req.UserRequestDTO;
 import com.example.GachonHack.domain.user.dto.res.UserResponseDTO;
 import com.example.GachonHack.domain.user.entity.User;
+import com.example.GachonHack.domain.user.entity.UserTitle;
 import com.example.GachonHack.domain.user.exception.UserException;
 import com.example.GachonHack.domain.user.exception.code.UserErrorCode;
 import com.example.GachonHack.domain.user.repository.UserBadgeRepository;
@@ -62,9 +63,21 @@ public class UserService {
                 user.getRealName(),
                 user.getStudentId(),
                 user.getGrade(),
+                user.getPointBalance(),
                 badges,
                 titles
         );
+    }
+
+    @Transactional
+    public void updateEquipment(Long userId, UserRequestDTO.EquipmentUpdateReqDTO request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(UserErrorCode.NOT_FOUND));
+        UserTitle selected = userTitleRepository.findByIdAndUser(request.userTitleId(), user)
+                .orElseThrow(() -> new UserException(UserErrorCode.TITLE_NOT_OWNED));
+        for (UserTitle userTitle : userTitleRepository.findByUser(user)) {
+            userTitle.setEquipped(userTitle.getId().equals(selected.getId()));
+        }
     }
 
     private String generateUniqueNickname() {

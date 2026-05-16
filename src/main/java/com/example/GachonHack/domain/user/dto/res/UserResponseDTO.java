@@ -9,6 +9,7 @@ public class UserResponseDTO {
             String realName,
             String studentId,
             Short grade,
+            Integer pointBalance,
             List<BadgeDTO> badges,
             List<TitleDTO> titles
     ) {}
