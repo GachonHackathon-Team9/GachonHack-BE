@@ -72,7 +72,7 @@ public class ChatWsController {
     }
 
     /**
-     * 수업별 채팅방 전송. 구독: {@code /topic/chat/rooms/{chatRoomId}}
+     * 채팅방 ID 기준 메시지 전송. 구독: {@code /topic/chat/rooms/{chatRoomId}}
      */
     @MessageMapping("/chat/rooms/{chatRoomId}/send")
     @SendTo("/topic/chat/rooms/{chatRoomId}")

@@ -39,8 +39,8 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
             JOIN FETCH c.space s
             WHERE c.active = true
               AND c.buddyMatch IS NULL
-              AND s.id = :roomId
+              AND s.id = :spaceId
             ORDER BY c.id ASC
             """)
-    List<ChatRoom> findActiveSpaceChatRoomsByRoomId(@Param("roomId") Long roomId);
+    List<ChatRoom> findActiveSpaceChatRoomsBySpaceId(@Param("spaceId") Long spaceId);
 }

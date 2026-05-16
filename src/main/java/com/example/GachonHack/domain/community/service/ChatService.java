@@ -39,9 +39,7 @@ public class ChatService {
             Long chatRoomId,
             ChatRequestDTO.SendMessageReqDTO request
     ) {
-        if (request.body() == null || request.body().isBlank()) {
-            throw new CommunityException(CommunityErrorCode.CHAT_MESSAGE_EMPTY);
-        }
+        validateMessageBody(request);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CommunityException(CommunityErrorCode.USER_NOT_FOUND));
         ChatRoom room = chatRoomRepository.findById(chatRoomId)
@@ -64,9 +62,7 @@ public class ChatService {
             Long spaceId,
             ChatRequestDTO.SendMessageReqDTO request
     ) {
-        if (request.body() == null || request.body().isBlank()) {
-            throw new CommunityException(CommunityErrorCode.CHAT_MESSAGE_EMPTY);
-        }
+        validateMessageBody(request);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CommunityException(CommunityErrorCode.USER_NOT_FOUND));
         Space space = spaceRepository.findById(spaceId)
@@ -88,6 +84,12 @@ public class ChatService {
         return rooms.stream()
                 .findFirst()
                 .orElseThrow(() -> new CommunityException(CommunityErrorCode.CHAT_ROOM_NOT_FOUND));
+    }
+
+    private void validateMessageBody(ChatRequestDTO.SendMessageReqDTO request) {
+        if (request.body() == null || request.body().isBlank()) {
+            throw new CommunityException(CommunityErrorCode.CHAT_MESSAGE_EMPTY);
+        }
     }
 
     private void validateChatAccess(ChatRoom room, Long userId) {

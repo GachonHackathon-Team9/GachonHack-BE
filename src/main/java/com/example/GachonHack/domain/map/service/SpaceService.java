@@ -55,6 +55,9 @@ public class SpaceService {
     public MapResponseDTO.ClassroomDetailResDTO getClassroomDetail(Long roomId) {
         Space room = findEnterableRoom(roomId);
         Space corridor = room.getParent();
+        if (corridor == null || !SpaceType.CORRIDOR.equals(corridor.getType())) {
+            throw new MapException(MapErrorCode.INVALID_SPACE_TYPE);
+        }
 
         List<MapResponseDTO.ScheduleItemDTO> schedules = classroomScheduleRepository
                 .findBySpaceOrderByDayOfWeekAscStartTimeAsc(room)
@@ -63,7 +66,7 @@ public class SpaceService {
                 .toList();
 
         List<MapResponseDTO.ClassChatRoomItemDTO> chatRooms = chatRoomRepository
-                .findActiveSpaceChatRoomsByRoomId(room.getId())
+                .findActiveSpaceChatRoomsBySpaceId(room.getId())
                 .stream()
                 .map(this::toClassChatRoomItem)
                 .toList();
@@ -71,8 +74,8 @@ public class SpaceService {
         return new MapResponseDTO.ClassroomDetailResDTO(
                 room.getId(),
                 room.getName(),
-                corridor != null ? corridor.getId() : null,
-                corridor != null ? corridor.getName() : null,
+                corridor.getId(),
+                corridor.getName(),
                 schedules,
                 chatRooms
         );

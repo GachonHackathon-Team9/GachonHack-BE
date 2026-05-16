@@ -27,6 +27,10 @@ public interface SpaceControllerDocs {
     )
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 공간 타입 (INVALID_SPACE_TYPE)"
+            ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "층 없음")
     })
     ApiResponse<MapResponseDTO.ClassroomListResDTO> getClassroomsByFloor(@PathVariable Long floorId);
@@ -39,6 +43,10 @@ public interface SpaceControllerDocs {
     )
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 공간 타입 (INVALID_SPACE_TYPE)"
+            ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "강의실 없음")
     })
     ApiResponse<MapResponseDTO.ClassroomDetailResDTO> getClassroomDetail(@PathVariable Long classroomId);
@@ -49,6 +57,10 @@ public interface SpaceControllerDocs {
     )
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "시간표 조회 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 공간 타입 (INVALID_SPACE_TYPE)"
+            ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "공간 없음")
     })
     ApiResponse<MapResponseDTO.TimetableResDTO> getTimetable(@PathVariable Long spaceId);
