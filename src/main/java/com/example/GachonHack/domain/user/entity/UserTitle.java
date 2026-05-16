@@ -39,8 +39,9 @@ public class UserTitle extends BaseEntity {
 
     public void setEquipped(boolean equipped) {
         this.equipped = equipped;
+    }
+
     public void toggleEquipped() {
         this.equipped = !this.equipped;
-
     }
 }

@@ -67,6 +67,7 @@ public class UserService {
         for (UserTitle userTitle : userTitleRepository.findByUser(user)) {
             userTitle.setEquipped(userTitle.getId().equals(selected.getId()));
         }
+    }
 
     private CatType randomCatType() {
         CatType[] types = CatType.values();
