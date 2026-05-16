@@ -37,6 +37,7 @@ public class SecurityConfig {
                                 "/oauth2/**",
                                 "/kakao/callback",
                                 "/api/auth/**",
+                                "/ws/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**"
