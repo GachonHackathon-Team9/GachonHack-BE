@@ -34,14 +34,35 @@ public class ChatService {
     private final UserRepository userRepository;
 
     @Transactional
+    public ChatResponseDTO.MessageBroadcastDTO sendMessageByChatRoomId(
+            Long userId,
+            Long chatRoomId,
+            ChatRequestDTO.SendMessageReqDTO request
+    ) {
+        validateMessageBody(request);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CommunityException(CommunityErrorCode.USER_NOT_FOUND));
+        ChatRoom room = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new CommunityException(CommunityErrorCode.CHAT_ROOM_NOT_FOUND));
+        if (!room.isActive()) {
+            throw new CommunityException(CommunityErrorCode.CHAT_ROOM_NOT_FOUND);
+        }
+        validateChatAccess(room, userId);
+        ChatMessage message = chatMessageRepository.save(ChatMessage.builder()
+                .room(room)
+                .user(user)
+                .body(request.body().trim())
+                .build());
+        return toBroadcast(message, room, user);
+    }
+
+    @Transactional
     public ChatResponseDTO.MessageBroadcastDTO sendMessage(
             Long userId,
             Long spaceId,
             ChatRequestDTO.SendMessageReqDTO request
     ) {
-        if (request.body() == null || request.body().isBlank()) {
-            throw new CommunityException(CommunityErrorCode.CHAT_MESSAGE_EMPTY);
-        }
+        validateMessageBody(request);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CommunityException(CommunityErrorCode.USER_NOT_FOUND));
         Space space = spaceRepository.findById(spaceId)
@@ -63,6 +84,12 @@ public class ChatService {
         return rooms.stream()
                 .findFirst()
                 .orElseThrow(() -> new CommunityException(CommunityErrorCode.CHAT_ROOM_NOT_FOUND));
+    }
+
+    private void validateMessageBody(ChatRequestDTO.SendMessageReqDTO request) {
+        if (request.body() == null || request.body().isBlank()) {
+            throw new CommunityException(CommunityErrorCode.CHAT_MESSAGE_EMPTY);
+        }
     }
 
     private void validateChatAccess(ChatRoom room, Long userId) {

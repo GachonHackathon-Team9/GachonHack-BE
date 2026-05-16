@@ -70,4 +70,18 @@ public class ChatWsController {
         User user = StompSessionUserResolver.resolve(headerAccessor);
         return chatService.sendMessage(user.getId(), spaceId, request);
     }
+
+    /**
+     * 채팅방 ID 기준 메시지 전송. 구독: {@code /topic/chat/rooms/{chatRoomId}}
+     */
+    @MessageMapping("/chat/rooms/{chatRoomId}/send")
+    @SendTo("/topic/chat/rooms/{chatRoomId}")
+    public ChatResponseDTO.MessageBroadcastDTO sendByChatRoom(
+            @DestinationVariable Long chatRoomId,
+            ChatRequestDTO.SendMessageReqDTO request,
+            SimpMessageHeaderAccessor headerAccessor
+    ) {
+        User user = StompSessionUserResolver.resolve(headerAccessor);
+        return chatService.sendMessageByChatRoomId(user.getId(), chatRoomId, request);
+    }
 }
