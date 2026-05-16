@@ -15,14 +15,18 @@ import com.example.GachonHack.domain.map.repository.SpaceRepository;
 import com.example.GachonHack.domain.user.entity.User;
 import com.example.GachonHack.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class ChatService {
+
+    private static final Pageable FIRST_ROOM = PageRequest.of(0, 1);
 
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
@@ -53,10 +57,12 @@ public class ChatService {
     }
 
     private ChatRoom resolveRoom(Space space) {
-        Optional<ChatRoom> room = MentoringChatService.isMentoringSpace(space)
-                ? chatRoomRepository.findFirstActiveBySpaceWithParticipants(space)
-                : chatRoomRepository.findFirstActivePublicSpaceRoom(space);
-        return room.orElseThrow(() -> new CommunityException(CommunityErrorCode.CHAT_ROOM_NOT_FOUND));
+        List<ChatRoom> rooms = MentoringChatService.isMentoringSpace(space)
+                ? chatRoomRepository.findActiveBySpaceWithParticipants(space, FIRST_ROOM)
+                : chatRoomRepository.findActivePublicSpaceRooms(space, FIRST_ROOM);
+        return rooms.stream()
+                .findFirst()
+                .orElseThrow(() -> new CommunityException(CommunityErrorCode.CHAT_ROOM_NOT_FOUND));
     }
 
     private void validateChatAccess(ChatRoom room, Long userId) {

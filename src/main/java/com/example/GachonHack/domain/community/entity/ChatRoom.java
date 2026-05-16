@@ -27,7 +27,7 @@ public class ChatRoom extends BaseEntity {
     @Column(name = "is_active", nullable = false)
     private boolean active;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "buddy_match_id")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "buddy_match_id", unique = true)
     private BuddyMatchRequest buddyMatch;
 }

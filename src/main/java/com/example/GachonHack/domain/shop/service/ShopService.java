@@ -20,10 +20,14 @@ import com.example.GachonHack.domain.user.entity.UserTitle;
 import com.example.GachonHack.domain.user.repository.UserRepository;
 import com.example.GachonHack.domain.user.repository.UserTitleRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,17 +44,21 @@ public class ShopService {
 
     @Transactional(readOnly = true)
     public ShopResponseDTO.ShopItemListResDTO getItems() {
-        List<ShopResponseDTO.ShopItemDTO> items = shopItemRepository
-                .findByOnSaleTrueAndItemTypeOrderBySortOrderAsc(ItemType.TITLE)
+        List<ShopItem> shopItems = shopItemRepository
+                .findByOnSaleTrueAndItemTypeOrderBySortOrderAsc(ItemType.TITLE);
+        Map<Long, TitleCatalog> titlesById = titleCatalogRepository
+                .findAllById(shopItems.stream().map(ShopItem::getItemId).distinct().toList())
                 .stream()
-                .map(this::toItemDto)
+                .collect(Collectors.toMap(TitleCatalog::getId, Function.identity()));
+        List<ShopResponseDTO.ShopItemDTO> items = shopItems.stream()
+                .map(item -> toItemDto(item, titlesById.get(item.getItemId())))
                 .toList();
         return new ShopResponseDTO.ShopItemListResDTO(items);
     }
 
     @Transactional
     public ShopResponseDTO.PurchaseResDTO purchase(Long userId, ShopRequestDTO.PurchaseReqDTO request) {
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByIdForUpdate(userId)
                 .orElseThrow(() -> new ShopException(ShopErrorCode.USER_NOT_FOUND));
         ShopItem shopItem = shopItemRepository.findById(request.shopItemId())
                 .orElseThrow(() -> new ShopException(ShopErrorCode.ITEM_NOT_FOUND));
@@ -85,18 +93,23 @@ public class ShopService {
                 .refId(order.getId())
                 .balanceAfter(balanceAfter)
                 .build());
-        UserTitle userTitle = userTitleRepository.save(UserTitle.builder()
-                .user(user)
-                .title(title)
-                .source("SHOP")
-                .equipped(false)
-                .build());
-        return new ShopResponseDTO.PurchaseResDTO(order.getId(), userTitle.getId(), balanceAfter);
+        try {
+            UserTitle userTitle = userTitleRepository.save(UserTitle.builder()
+                    .user(user)
+                    .title(title)
+                    .source("SHOP")
+                    .equipped(false)
+                    .build());
+            return new ShopResponseDTO.PurchaseResDTO(order.getId(), userTitle.getId(), balanceAfter);
+        } catch (DataIntegrityViolationException ex) {
+            throw new ShopException(ShopErrorCode.ALREADY_OWNED);
+        }
     }
 
-    private ShopResponseDTO.ShopItemDTO toItemDto(ShopItem item) {
-        TitleCatalog title = titleCatalogRepository.findById(item.getItemId())
-                .orElseThrow(() -> new ShopException(ShopErrorCode.TITLE_NOT_FOUND));
+    private ShopResponseDTO.ShopItemDTO toItemDto(ShopItem item, TitleCatalog title) {
+        if (title == null) {
+            throw new ShopException(ShopErrorCode.TITLE_NOT_FOUND);
+        }
         return new ShopResponseDTO.ShopItemDTO(
                 item.getId(),
                 title.getId(),

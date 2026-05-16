@@ -1,8 +1,6 @@
 package com.example.GachonHack.global.config.security.oauth2;
 
 import com.example.GachonHack.domain.user.entity.User;
-import com.example.GachonHack.domain.user.entity.UserAuth;
-import com.example.GachonHack.domain.user.repository.UserAuthRepository;
 import com.example.GachonHack.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -18,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
-    private final UserAuthRepository userAuthRepository;
 
     @Override
     @Transactional
@@ -37,19 +34,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
         String kakaoId = idAttr.toString();
 
-        var existingAuth = userAuthRepository.findByProviderAndProviderUid(UserAuth.PROVIDER_KAKAO, kakaoId);
-        User user = existingAuth
-                .map(UserAuth::getUser)
-                .orElseGet(() -> userRepository.findByKakaoId(kakaoId)
-                        .orElseGet(() -> userRepository.save(User.builder().kakaoId(kakaoId).build())));
-
-        if (existingAuth.isEmpty()) {
-            userAuthRepository.save(UserAuth.builder()
-                    .user(user)
-                    .provider(UserAuth.PROVIDER_KAKAO)
-                    .providerUid(kakaoId)
-                    .build());
-        }
+        User user = userRepository.findByKakaoId(kakaoId)
+                .orElseGet(() -> userRepository.save(
+                        User.builder()
+                                .kakaoId(kakaoId)
+                                .build()
+                ));
 
         return new CustomOAuth2User(oAuth2User.getAttributes(), user);
     }
