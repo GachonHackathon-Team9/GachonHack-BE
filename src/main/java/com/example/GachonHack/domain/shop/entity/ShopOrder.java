@@ -1,6 +1,5 @@
 package com.example.GachonHack.domain.shop.entity;
 
-import com.example.GachonHack.domain.shop.enums.ItemType;
 import com.example.GachonHack.domain.shop.enums.OrderStatus;
 import com.example.GachonHack.domain.user.entity.User;
 import com.example.GachonHack.global.entity.BaseEntity;
@@ -30,10 +29,6 @@ public class ShopOrder extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shop_item_id", nullable = false)
     private ShopItem shopItem;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "item_type", nullable = false, length = 10)
-    private ItemType itemType;
 
     @Column(name = "item_id", nullable = false)
     private Long itemId;

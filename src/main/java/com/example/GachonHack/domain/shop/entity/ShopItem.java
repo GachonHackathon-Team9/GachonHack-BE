@@ -1,6 +1,5 @@
 package com.example.GachonHack.domain.shop.entity;
 
-import com.example.GachonHack.domain.shop.enums.ItemType;
 import com.example.GachonHack.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -17,15 +16,7 @@ public class ShopItem extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shop_id", nullable = false)
-    private Shop shop;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "item_type", nullable = false, length = 10)
-    private ItemType itemType;
-
-    // badge_catalog 또는 title_catalog의 PK (item_type으로 구분)
+    // title_catalog의 PK
     @Column(name = "item_id", nullable = false)
     private Long itemId;
 

@@ -5,7 +5,6 @@ import com.example.GachonHack.domain.user.dto.res.UserResponseDTO;
 import com.example.GachonHack.domain.user.entity.User;
 import com.example.GachonHack.domain.user.exception.UserException;
 import com.example.GachonHack.domain.user.exception.code.UserErrorCode;
-import com.example.GachonHack.domain.user.repository.UserBadgeRepository;
 import com.example.GachonHack.domain.user.repository.UserRepository;
 import com.example.GachonHack.domain.user.repository.UserTitleRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,6 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final UserBadgeRepository userBadgeRepository;
     private final UserTitleRepository userTitleRepository;
     private final SecureRandom random = new SecureRandom();
 
@@ -38,16 +36,6 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserErrorCode.NOT_FOUND));
 
-        List<UserResponseDTO.BadgeDTO> badges = userBadgeRepository.findByUserWithBadge(user)
-                .stream()
-                .map(ub -> new UserResponseDTO.BadgeDTO(
-                        ub.getId(),
-                        ub.getBadge().getDisplayName(),
-                        ub.getBadge().getIconUrl(),
-                        ub.isEquipped()
-                ))
-                .toList();
-
         List<UserResponseDTO.TitleDTO> titles = userTitleRepository.findByUserWithTitle(user)
                 .stream()
                 .map(ut -> new UserResponseDTO.TitleDTO(
@@ -62,7 +50,6 @@ public class UserService {
                 user.getRealName(),
                 user.getStudentId(),
                 user.getGrade(),
-                badges,
                 titles
         );
     }
