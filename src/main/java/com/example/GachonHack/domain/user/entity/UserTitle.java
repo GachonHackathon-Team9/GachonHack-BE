@@ -5,8 +5,6 @@ import com.example.GachonHack.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "user_titles")
 @Builder
@@ -32,9 +30,6 @@ public class UserTitle extends BaseEntity {
 
     @Column(name = "is_equipped", nullable = false)
     private boolean equipped;
-
-    @Column(name = "acquired_at", nullable = false)
-    private LocalDateTime acquiredAt;
 
     public void setEquipped(boolean equipped) {
         this.equipped = equipped;

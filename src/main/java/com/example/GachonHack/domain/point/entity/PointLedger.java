@@ -35,10 +35,10 @@ public class PointLedger extends BaseEntity {
     @Column(nullable = false, length = 30)
     private PointReason reason;
 
-    @Column(name = "ref_type", length = 30, nullable = false)
+    @Column(name = "ref_type", length = 30)
     private String refType;
 
-    @Column(name = "ref_id", nullable = false)
+    @Column(name = "ref_id")
     private Long refId;
 
     @Column(name = "balance_after", nullable = false)

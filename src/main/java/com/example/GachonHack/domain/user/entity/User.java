@@ -1,5 +1,6 @@
 package com.example.GachonHack.domain.user.entity;
 
+import com.example.GachonHack.domain.user.enums.CatType;
 import com.example.GachonHack.domain.user.enums.Role;
 import com.example.GachonHack.global.entity.BaseEntity;
 import jakarta.persistence.*;
@@ -19,6 +20,10 @@ public class User extends BaseEntity {
 
     @Column(name = "kakao_id", length = 64, unique = true)
     private String kakaoId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "cat_type", length = 20)
+    private CatType catType;
 
     @Column(name = "real_name", length = 50)
     private String realName;
