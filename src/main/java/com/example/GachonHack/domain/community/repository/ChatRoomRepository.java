@@ -33,4 +33,14 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
     List<ChatRoom> findActiveBySpaceWithParticipants(@Param("space") Space space, Pageable pageable);
 
     Optional<ChatRoom> findByBuddyMatchAndActiveTrue(BuddyMatchRequest buddyMatch);
+
+    @Query("""
+            SELECT c FROM ChatRoom c
+            JOIN FETCH c.space s
+            WHERE c.active = true
+              AND c.buddyMatch IS NULL
+              AND s.id = :roomId
+            ORDER BY c.id ASC
+            """)
+    List<ChatRoom> findActiveSpaceChatRoomsByRoomId(@Param("roomId") Long roomId);
 }

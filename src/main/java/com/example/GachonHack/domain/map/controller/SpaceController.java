@@ -20,6 +20,30 @@ public class SpaceController implements SpaceControllerDocs {
     private final SpaceService spaceService;
 
     @Override
+    @GetMapping("/floors")
+    public ApiResponse<MapResponseDTO.FloorListResDTO> getFloors() {
+        return ApiResponse.onSuccess(MapSuccessCode.FLOOR_LIST_SUCCESS, spaceService.getFloors());
+    }
+
+    @Override
+    @GetMapping("/floors/{floorId}/classrooms")
+    public ApiResponse<MapResponseDTO.ClassroomListResDTO> getClassroomsByFloor(@PathVariable Long floorId) {
+        return ApiResponse.onSuccess(
+                MapSuccessCode.CLASSROOM_LIST_SUCCESS,
+                spaceService.getClassroomsByFloor(floorId)
+        );
+    }
+
+    @Override
+    @GetMapping("/classrooms/{classroomId}")
+    public ApiResponse<MapResponseDTO.ClassroomDetailResDTO> getClassroomDetail(@PathVariable Long classroomId) {
+        return ApiResponse.onSuccess(
+                MapSuccessCode.CLASSROOM_DETAIL_SUCCESS,
+                spaceService.getClassroomDetail(classroomId)
+        );
+    }
+
+    @Override
     @GetMapping("/{spaceId}/timetable")
     public ApiResponse<MapResponseDTO.TimetableResDTO> getTimetable(@PathVariable Long spaceId) {
         return ApiResponse.onSuccess(MapSuccessCode.TIMETABLE_SUCCESS, spaceService.getTimetable(spaceId));
