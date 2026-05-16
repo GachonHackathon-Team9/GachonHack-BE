@@ -141,7 +141,6 @@ public class MentoringService {
                 target.getRealName(),
                 request.getStatus(),
                 request.getCreatedAt(),
-                request.getRespondedAt(),
                 chatSpaceId
         );
     }
