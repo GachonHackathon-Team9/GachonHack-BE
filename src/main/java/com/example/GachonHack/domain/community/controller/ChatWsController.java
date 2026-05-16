@@ -4,6 +4,7 @@ import com.example.GachonHack.domain.community.dto.req.ChatRequestDTO;
 import com.example.GachonHack.domain.community.dto.res.ChatResponseDTO;
 import com.example.GachonHack.domain.community.service.ChatService;
 import com.example.GachonHack.domain.user.entity.User;
+import com.example.GachonHack.global.auth.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -74,9 +75,10 @@ public class ChatWsController {
      * @see com.example.GachonHack.domain.map.controller.SpaceWsController#resolveUser(SimpMessageHeaderAccessor)
      */
     private User resolveUser(SimpMessageHeaderAccessor headerAccessor) {
-        Object user = headerAccessor.getUser();
-        if (user instanceof org.springframework.security.authentication.UsernamePasswordAuthenticationToken auth) {
-            return (User) auth.getPrincipal();
+        Object principal = headerAccessor.getUser();
+        if (principal instanceof org.springframework.security.authentication.UsernamePasswordAuthenticationToken auth
+                && auth.getPrincipal() instanceof CustomUserDetails details) {
+            return details.getUser();
         }
         throw new IllegalStateException("인증된 사용자가 필요합니다.");
     }

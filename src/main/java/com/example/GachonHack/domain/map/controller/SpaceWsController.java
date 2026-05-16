@@ -4,6 +4,7 @@ import com.example.GachonHack.domain.map.dto.req.MapRequestDTO;
 import com.example.GachonHack.domain.map.dto.res.MapWsResponseDTO;
 import com.example.GachonHack.domain.map.service.UserPresenceService;
 import com.example.GachonHack.domain.user.entity.User;
+import com.example.GachonHack.global.auth.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -86,9 +87,10 @@ public class SpaceWsController {
      * </p>
      */
     private User resolveUser(SimpMessageHeaderAccessor headerAccessor) {
-        Object user = headerAccessor.getUser();
-        if (user instanceof org.springframework.security.authentication.UsernamePasswordAuthenticationToken auth) {
-            return (User) auth.getPrincipal();
+        Object principal = headerAccessor.getUser();
+        if (principal instanceof org.springframework.security.authentication.UsernamePasswordAuthenticationToken auth
+                && auth.getPrincipal() instanceof CustomUserDetails details) {
+            return details.getUser();
         }
         throw new IllegalStateException("인증된 사용자가 필요합니다.");
     }
