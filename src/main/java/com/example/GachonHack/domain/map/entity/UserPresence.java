@@ -31,9 +31,9 @@ public class UserPresence extends BaseEntity {
     @Column(name = "pos_y")
     private Float posY;
 
-    public void move(Space space, Float posX, Float posY) {
+    public void moveTo(Space space, float targetX, float targetY) {
         this.space = space;
-        this.posX = posX;
-        this.posY = posY;
+        this.posX = targetX;
+        this.posY = targetY;
     }
 }

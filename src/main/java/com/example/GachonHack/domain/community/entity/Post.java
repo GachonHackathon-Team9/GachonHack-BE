@@ -39,4 +39,12 @@ public class Post extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
     private PostType type;
+
+    public void increaseViewCount() {
+        this.viewCount++;
+    }
+
+    public void increaseLikeCount() {
+        this.likeCount++;
+    }
 }
