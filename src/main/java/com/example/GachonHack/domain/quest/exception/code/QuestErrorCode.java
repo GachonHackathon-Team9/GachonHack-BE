@@ -31,7 +31,10 @@ public enum QuestErrorCode implements BaseCode {
             "승인 또는 거절만 가능합니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND,
             "QUEST404_3",
-            "사용자를 찾을 수 없습니다.");
+            "사용자를 찾을 수 없습니다."),
+    MATCH_REQUIRED(HttpStatus.BAD_REQUEST,
+            "QUEST400_5",
+            "짝선짝후 매칭이 필요합니다.");
 
     private final HttpStatus status;
     private final String code;

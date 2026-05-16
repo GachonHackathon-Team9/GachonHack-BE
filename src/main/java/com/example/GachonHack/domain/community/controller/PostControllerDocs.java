@@ -38,35 +38,12 @@ public interface PostControllerDocs {
             @Valid @RequestBody CommunityRequestDTO.PostCreateReqDTO request
     );
 
-    @Operation(summary = "게시글 상세 조회 API", description = "게시글 상세와 댓글 목록을 반환합니다. 조회 시 조회수가 1 증가합니다.")
+    @Operation(summary = "게시글 상세 조회 API", description = "게시글 상세를 반환합니다. 조회 시 조회수가 1 증가합니다.")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "게시글 없음")
     })
     ApiResponse<CommunityResponseDTO.PostDetailDTO> getPost(
-            @AuthenticationPrincipal User user,
-            @PathVariable Long postId
-    );
-
-    @Operation(summary = "댓글 작성 API", description = "게시글에 댓글을 작성합니다.")
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "작성 성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "작성 권한 없음"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "게시글 없음")
-    })
-    ApiResponse<CommunityResponseDTO.CommentCreateResDTO> createComment(
-            @AuthenticationPrincipal User user,
-            @PathVariable Long postId,
-            @Valid @RequestBody CommunityRequestDTO.CommentCreateReqDTO request
-    );
-
-    @Operation(summary = "게시글 추천 API", description = "게시글에 추천(좋아요)을 등록합니다. 중복 추천은 불가합니다.")
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "추천 성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "이미 추천함"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "게시글 없음")
-    })
-    ApiResponse<CommunityResponseDTO.PostLikeResDTO> likePost(
             @AuthenticationPrincipal User user,
             @PathVariable Long postId
     );

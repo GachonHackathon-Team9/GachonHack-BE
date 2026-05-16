@@ -1,7 +1,7 @@
 package com.example.GachonHack.domain.quest.dto.res;
 
 import com.example.GachonHack.domain.quest.enums.QuestType;
-import com.example.GachonHack.domain.quest.enums.SubmissionStatus;
+import com.example.GachonHack.domain.quest.enums.UserQuestStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,7 +18,7 @@ public class QuestResponseDTO {
             Long spaceId,
             String spaceName,
             Integer requiredMinutes,
-            SubmissionStatus submissionStatus
+            UserQuestStatus submissionStatus
     ) {}
 
     public record DailyQuestListResDTO(
@@ -28,7 +28,7 @@ public class QuestResponseDTO {
     public record QuestVerifyResDTO(
             Long submissionId,
             Long questId,
-            SubmissionStatus status,
+            UserQuestStatus status,
             LocalDateTime submittedAt
     ) {}
 
@@ -36,7 +36,7 @@ public class QuestResponseDTO {
             Long submissionId,
             Long questId,
             Long userId,
-            SubmissionStatus status,
+            UserQuestStatus status,
             Integer rewardPoints,
             Integer balanceAfter
     ) {}

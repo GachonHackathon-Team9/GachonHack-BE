@@ -5,6 +5,6 @@ import jakarta.validation.constraints.NotNull;
 public class ShopRequestDTO {
 
     public record PurchaseReqDTO(
-            @NotNull Long shopItemId
+            @NotNull Long titleId
     ) {}
 }
