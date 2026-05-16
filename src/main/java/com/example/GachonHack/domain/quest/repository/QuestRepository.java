@@ -10,4 +10,6 @@ import java.util.List;
 public interface QuestRepository extends JpaRepository<Quest, Long> {
 
     List<Quest> findByDailyTrueAndActiveTrueOrderByIdAsc();
+
+    List<Quest> findByDailyTrueOrderByIdAsc();
 }
