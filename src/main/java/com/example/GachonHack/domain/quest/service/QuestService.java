@@ -17,6 +17,7 @@ import com.example.GachonHack.domain.user.entity.User;
 import com.example.GachonHack.domain.user.enums.Role;
 import com.example.GachonHack.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,12 +57,17 @@ public class QuestService {
             throw new QuestException(QuestErrorCode.SUBMISSION_ALREADY_EXISTS);
         }
         LocalDateTime now = LocalDateTime.now();
-        QuestSubmission saved = questSubmissionRepository.save(QuestSubmission.builder()
-                .quest(quest)
-                .user(user)
-                .status(SubmissionStatus.PENDING)
-                .submittedAt(now)
-                .build());
+        QuestSubmission saved;
+        try {
+            saved = questSubmissionRepository.save(QuestSubmission.builder()
+                    .quest(quest)
+                    .user(user)
+                    .status(SubmissionStatus.PENDING)
+                    .submittedAt(now)
+                    .build());
+        } catch (DataIntegrityViolationException ex) {
+            throw new QuestException(QuestErrorCode.SUBMISSION_ALREADY_EXISTS);
+        }
         return new QuestResponseDTO.QuestVerifyResDTO(
                 saved.getId(),
                 quest.getId(),
@@ -114,14 +120,18 @@ public class QuestService {
         int rewardPoints = quest.getRewardPoints();
         targetUser.adjustPoint(rewardPoints);
         int balanceAfter = targetUser.getPointBalance();
-        pointLedgerRepository.save(PointLedger.builder()
-                .user(targetUser)
-                .amount(rewardPoints)
-                .reason(PointReason.QUEST_REWARD)
-                .refType(QUEST_SUBMISSION_REF_TYPE)
-                .refId(submission.getId())
-                .balanceAfter(balanceAfter)
-                .build());
+        try {
+            pointLedgerRepository.save(PointLedger.builder()
+                    .user(targetUser)
+                    .amount(rewardPoints)
+                    .reason(PointReason.QUEST_REWARD)
+                    .refType(QUEST_SUBMISSION_REF_TYPE)
+                    .refId(submission.getId())
+                    .balanceAfter(balanceAfter)
+                    .build());
+        } catch (DataIntegrityViolationException ex) {
+            throw new QuestException(QuestErrorCode.REWARD_ALREADY_GRANTED);
+        }
         return new QuestResponseDTO.QuestRewardResDTO(
                 submission.getId(),
                 quest.getId(),
