@@ -23,16 +23,10 @@ public class ShopOrder extends BaseEntity {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shop_id", nullable = false)
-    private Shop shop;
+    @JoinColumn(name = "title_id", nullable = false)
+    private TitleCatalog title;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shop_item_id", nullable = false)
-    private ShopItem shopItem;
-
-    @Column(name = "item_id", nullable = false)
-    private Long itemId;
-
+    // 구매 당시 가격 보존 (이후 title 가격이 변경되어도 이력 유지)
     @Column(name = "price_points", nullable = false)
     private Integer pricePoints;
 
