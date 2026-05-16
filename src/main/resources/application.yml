@@ -10,7 +10,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
@@ -41,7 +41,7 @@ jwt:
       refresh: 1209600000  # 14일
 
 oauth2:
-  redirect-uri: ${OAUTH2_REDIRECT_URI:http://localhost:3000}
+  redirect-uri: https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_CLIENT_ID}&redirect_uri=${KAKAO_REDIRECT_URI}&response_type=code
 
 app:
   websocket:
