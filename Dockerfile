@@ -1,5 +1,5 @@
 # 1단계: 빌드 스테이지 (Gradle 빌드)
-FROM eclipse-temurin:17-jdk-alpine AS build
+FROM eclipse-temurin:21-jdk-alpine AS build
 WORKDIR /app
 COPY . .
 
@@ -8,7 +8,7 @@ RUN chmod +x ./gradlew
 RUN ./gradlew bootJar --no-daemon
 
 # 2단계: 실행 스테이지 (실제 서버 구동)
-FROM eclipse-temurin:17-jdk-alpine
+FROM eclipse-temurin:21-jdk-alpine
 WORKDIR /app
 
 # 빌드 스테이지에서 생성된 jar 파일을 실행 스테이지로 복사
