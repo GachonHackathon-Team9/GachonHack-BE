@@ -42,10 +42,6 @@ public class User extends BaseEntity {
     private Integer pointBalance = 0;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "cat_type", length = 20)
-    private CatType catType;
-
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     @Builder.Default
     private Role role = Role.USER;
