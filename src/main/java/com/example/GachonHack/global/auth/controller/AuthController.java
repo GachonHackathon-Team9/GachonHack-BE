@@ -28,8 +28,8 @@ public class AuthController implements AuthControllerDocs {
 
     @Override
     @PostMapping("/logout")
-    public ApiResponse<?> logout(HttpServletResponse response) {
-        authService.logout(response);
+    public ApiResponse<?> logout(HttpServletRequest request, HttpServletResponse response) {
+        authService.logout(request, response);
         return ApiResponse.onSuccess(AuthSuccessCode.LOGOUT_SUCCESS, null);
     }
 }

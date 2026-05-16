@@ -61,7 +61,17 @@ public class AuthService {
     }
 
     @Transactional
-    public void logout(HttpServletResponse response) {
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        String refreshToken = CookieUtil.get(request, "refreshToken");
+        if (refreshToken != null) {
+            try {
+                Claims claims = jwtUtil.validateToken(refreshToken);
+                Long userId = Long.valueOf(claims.getSubject());
+                refreshTokenRepository.deleteById(userId);
+            } catch (Exception ignored) {
+                // 토큰이 만료/변조됐어도 쿠키 삭제는 진행
+            }
+        }
         response.addHeader("Set-Cookie", CookieUtil.delete("accessToken").toString());
         response.addHeader("Set-Cookie", CookieUtil.delete("refreshToken").toString());
     }

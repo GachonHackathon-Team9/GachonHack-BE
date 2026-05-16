@@ -66,5 +66,5 @@ public interface AuthControllerDocs {
             description = "로그아웃 성공"
     )
     @PostMapping("/logout")
-    ApiResponse<?> logout(HttpServletResponse response);
+    ApiResponse<?> logout(HttpServletRequest request, HttpServletResponse response);
 }
