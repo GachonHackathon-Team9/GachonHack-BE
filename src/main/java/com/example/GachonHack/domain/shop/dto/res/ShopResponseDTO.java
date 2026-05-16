@@ -4,16 +4,15 @@ import java.util.List;
 
 public class ShopResponseDTO {
 
-    public record ShopItemDTO(
-            Long shopItemId,
+    public record TitleItemDTO(
             Long titleId,
             String displayText,
             Integer pricePoints,
             Integer sortOrder
     ) {}
 
-    public record ShopItemListResDTO(
-            List<ShopItemDTO> items
+    public record TitleItemListResDTO(
+            List<TitleItemDTO> items
     ) {}
 
     public record PurchaseResDTO(

@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -53,7 +52,6 @@ public class UserService {
                 user.getStudentId(),
                 user.getGrade(),
                 user.getPointBalance(),
-                Collections.emptyList(),
                 titles
         );
     }

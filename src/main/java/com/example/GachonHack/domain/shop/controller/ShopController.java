@@ -22,7 +22,7 @@ public class ShopController implements ShopControllerDocs {
 
     @Override
     @GetMapping("/items")
-    public ApiResponse<ShopResponseDTO.ShopItemListResDTO> getItems(
+    public ApiResponse<ShopResponseDTO.TitleItemListResDTO> getItems(
             @AuthenticationPrincipal(expression = "user") User user
     ) {
         return ApiResponse.onSuccess(ShopSuccessCode.ITEM_LIST_SUCCESS, shopService.getItems());

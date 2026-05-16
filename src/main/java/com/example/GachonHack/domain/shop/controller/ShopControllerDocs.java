@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface ShopControllerDocs {
 
     @Operation(summary = "상점 아이템 목록", description = "판매 중인 칭호 목록을 조회합니다.")
-    ApiResponse<ShopResponseDTO.ShopItemListResDTO> getItems(@AuthenticationPrincipal User user);
+    ApiResponse<ShopResponseDTO.TitleItemListResDTO> getItems(@AuthenticationPrincipal User user);
 
     @Operation(summary = "아이템 구매", description = "칭호를 포인트로 구매합니다.")
     ApiResponse<ShopResponseDTO.PurchaseResDTO> purchase(

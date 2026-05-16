@@ -10,15 +10,7 @@ public class UserResponseDTO {
             String studentId,
             Short grade,
             Integer pointBalance,
-            List<BadgeDTO> badges,
             List<TitleDTO> titles
-    ) {}
-
-    public record BadgeDTO(
-            Long id,
-            String displayName,
-            String iconUrl,
-            boolean equipped
     ) {}
 
     public record TitleDTO(

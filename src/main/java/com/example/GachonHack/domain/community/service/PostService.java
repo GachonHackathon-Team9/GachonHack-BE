@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -31,7 +30,7 @@ public class PostService {
                 ? postRepository.findAllWithAuthor()
                 : postRepository.findByTypeWithAuthor(type);
         return posts.stream()
-                .map(post -> toSummary(post, false))
+                .map(this::toSummary)
                 .toList();
     }
 
@@ -58,7 +57,7 @@ public class PostService {
         }
         Post post = postRepository.findByIdWithAuthor(postId)
                 .orElseThrow(() -> new CommunityException(CommunityErrorCode.POST_NOT_FOUND));
-        return toDetail(post, Collections.emptyList(), false);
+        return toDetail(post);
     }
 
     private boolean isFreshman(User user) {
@@ -70,7 +69,7 @@ public class PostService {
                 .orElseThrow(() -> new CommunityException(CommunityErrorCode.USER_NOT_FOUND));
     }
 
-    private CommunityResponseDTO.PostSummaryDTO toSummary(Post post, boolean isLiked) {
+    private CommunityResponseDTO.PostSummaryDTO toSummary(Post post) {
         User author = post.getAuthor();
         return new CommunityResponseDTO.PostSummaryDTO(
                 post.getId(),
@@ -80,16 +79,11 @@ public class PostService {
                 post.getType(),
                 post.getViewCount(),
                 post.getLikeCount(),
-                isLiked,
                 post.getCreatedAt()
         );
     }
 
-    private CommunityResponseDTO.PostDetailDTO toDetail(
-            Post post,
-            List<CommunityResponseDTO.CommentDTO> comments,
-            boolean isLiked
-    ) {
+    private CommunityResponseDTO.PostDetailDTO toDetail(Post post) {
         User author = post.getAuthor();
         return new CommunityResponseDTO.PostDetailDTO(
                 post.getId(),
@@ -100,10 +94,8 @@ public class PostService {
                 post.getType(),
                 post.getViewCount(),
                 post.getLikeCount(),
-                isLiked,
                 post.getCreatedAt(),
-                post.getUpdatedAt(),
-                comments
+                post.getUpdatedAt()
         );
     }
 }

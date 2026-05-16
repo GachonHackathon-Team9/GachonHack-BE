@@ -36,12 +36,12 @@ public class ShopService {
     private final PointLedgerRepository pointLedgerRepository;
 
     @Transactional(readOnly = true)
-    public ShopResponseDTO.ShopItemListResDTO getItems() {
-        List<ShopResponseDTO.ShopItemDTO> items = titleCatalogRepository.findByActiveTrueOrderBySortOrderAsc()
+    public ShopResponseDTO.TitleItemListResDTO getItems() {
+        List<ShopResponseDTO.TitleItemDTO> items = titleCatalogRepository.findByActiveTrueOrderBySortOrderAsc()
                 .stream()
                 .map(this::toItemDto)
                 .toList();
-        return new ShopResponseDTO.ShopItemListResDTO(items);
+        return new ShopResponseDTO.TitleItemListResDTO(items);
     }
 
     @Transactional
@@ -89,9 +89,8 @@ public class ShopService {
         }
     }
 
-    private ShopResponseDTO.ShopItemDTO toItemDto(TitleCatalog title) {
-        return new ShopResponseDTO.ShopItemDTO(
-                title.getId(),
+    private ShopResponseDTO.TitleItemDTO toItemDto(TitleCatalog title) {
+        return new ShopResponseDTO.TitleItemDTO(
                 title.getId(),
                 title.getDisplayText(),
                 title.getPricePoints(),

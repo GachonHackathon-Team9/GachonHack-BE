@@ -20,11 +20,6 @@ public class CommunityRequestDTO {
             PostType type
     ) {}
 
-    public record CommentCreateReqDTO(
-            @NotBlank(message = "댓글 내용은 필수입니다.")
-            String body
-    ) {}
-
     public record MentoringRequestCreateReqDTO(
             @NotNull(message = "대상 사용자 ID는 필수입니다.")
             Long targetUserId,
