@@ -41,43 +41,34 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws IOException, ServletException {
 
-        String token = null;
+        Long resolvedUserId = null;
+
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);
+            try {
+                var claims = jwtUtil.validateToken(authHeader.substring(7));
+                String subject = claims.getSubject();
+                if (subject != null && !subject.isBlank()) {
+                    resolvedUserId = Long.valueOf(subject);
+                }
+            } catch (Exception ignored) {}
         }
 
-        if (token != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            try {
-                var claims = jwtUtil.validateToken(token);
+        // 데모: 토큰 없거나 유효하지 않으면 userId=1 자동 주입
+        if (resolvedUserId == null) {
+            resolvedUserId = 1L;
+        }
 
-                String subject = claims.getSubject();
-                if (subject == null || subject.isBlank()) {
-                    throw new IllegalArgumentException("JWT sub is empty");
-                }
-                Long userId = Long.valueOf(subject);
-
-                User user = userRepository.findById(userId).orElse(null);
-
-                if (user != null) {
-                    CustomUserDetails userDetails = new CustomUserDetails(user);
-
-                    UsernamePasswordAuthenticationToken auth =
-                            new UsernamePasswordAuthenticationToken(
-                                    userDetails,
-                                    null,
-                                    userDetails.getAuthorities()
-                            );
-
-                    auth.setDetails(
-                            new WebAuthenticationDetailsSource()
-                                    .buildDetails(request)
-                    );
-
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-                }
-            } catch (Exception e) {
-                SecurityContextHolder.clearContext();
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            User user = userRepository.findById(resolvedUserId).orElse(null);
+            if (user != null) {
+                CustomUserDetails userDetails = new CustomUserDetails(user);
+                UsernamePasswordAuthenticationToken auth =
+                        new UsernamePasswordAuthenticationToken(
+                                userDetails, null, userDetails.getAuthorities()
+                        );
+                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }
 
