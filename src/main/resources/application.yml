@@ -3,7 +3,6 @@ spring:
     name: GachonHack
 
   datasource:
-    # Railway에서 준 호스트와 포트, 데이터베이스명을 아래 형식에 맞게 넣어야 해
     url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Seoul
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
@@ -11,8 +10,38 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update # 👈 Entity를 보고 자동으로 클라우드 DB에 테이블을 만들어줌
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
         format_sql: true
+
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_CLIENT_SECRET}
+            redirect-uri: "${KAKAO_REDIRECT_URI}"
+            authorization-grant-type: authorization_code
+            client-authentication-method: client_secret_post
+            scope:
+              - profile_nickname
+              - account_email
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+
+jwt:
+  token:
+    secretKey: ${JWT_SECRET_KEY}
+    expiration:
+      access: 3600000      # 1시간
+      refresh: 1209600000  # 14일
+
+oauth2:
+  redirect-uri: ${OAUTH2_REDIRECT_URI:http://localhost:3000}
