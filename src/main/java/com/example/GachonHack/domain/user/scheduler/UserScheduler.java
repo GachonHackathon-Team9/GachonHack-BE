@@ -24,7 +24,7 @@ public class UserScheduler {
 
     @EventListener(ApplicationReadyEvent.class)
     public void refreshDailyQuestsOnStartupIfEmpty() {
-        if (questRepository.findByDailyTrueAndActiveTrueOrderByIdAsc().isEmpty()) {
+        if (!questRepository.existsByDailyTrueAndActiveTrue()) {
             log.info("활성 일일 퀘스트가 없어 기동 시 1회 갱신합니다.");
             dailyQuestRefreshService.refreshDailyQuests();
         }

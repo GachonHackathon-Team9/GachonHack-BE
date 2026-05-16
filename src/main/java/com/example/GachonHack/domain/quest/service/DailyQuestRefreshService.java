@@ -28,11 +28,20 @@ public class DailyQuestRefreshService {
             return;
         }
 
+        int configuredCount = dailyQuestProperties.activeCount();
+        if (configuredCount <= 0) {
+            log.error(
+                    "일일 퀘스트 갱신 스킵: quest.daily.active-count 값이 올바르지 않습니다. activeCount={}",
+                    configuredCount
+            );
+            return;
+        }
+
         pool.forEach(quest -> quest.updateActive(false));
 
         List<Quest> candidates = new ArrayList<>(pool);
         Collections.shuffle(candidates);
-        int pickCount = Math.min(dailyQuestProperties.activeCount(), candidates.size());
+        int pickCount = Math.min(configuredCount, candidates.size());
         for (int i = 0; i < pickCount; i++) {
             candidates.get(i).updateActive(true);
         }
