@@ -32,9 +32,6 @@ public class BuddyMatchRequest extends BaseEntity {
     @Column(nullable = false, length = 20)
     private BuddyMatchStatus status;
 
-    @Column(name = "responded_at")
-    private LocalDateTime respondedAt;
-
     public void respond(BuddyMatchStatus status) {
         this.status = status;
         this.respondedAt = LocalDateTime.now();
