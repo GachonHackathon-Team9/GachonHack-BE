@@ -42,3 +42,8 @@ jwt:
 
 oauth2:
   redirect-uri: ${OAUTH2_REDIRECT_URI:http://localhost:3000}
+
+app:
+  websocket:
+    # 쉼표 구분. 운영: WEBSOCKET_ALLOWED_ORIGINS=https://your-frontend.com
+    allowed-origins: ${WEBSOCKET_ALLOWED_ORIGINS:http://localhost:3000}
