@@ -10,4 +10,8 @@ import java.util.List;
 public interface QuestRepository extends JpaRepository<Quest, Long> {
 
     List<Quest> findByDailyTrueAndActiveTrueOrderByIdAsc();
+
+    boolean existsByDailyTrueAndActiveTrue();
+
+    List<Quest> findByDailyTrueOrderByIdAsc();
 }
