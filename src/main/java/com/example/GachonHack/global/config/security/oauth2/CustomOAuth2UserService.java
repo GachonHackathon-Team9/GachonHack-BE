@@ -32,12 +32,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             throw new OAuth2AuthenticationException(new OAuth2Error("invalid_user_info"),
                     "Kakao 사용자 정보에 id가 없습니다.");
         }
-        String socialId = idAttr.toString();
+        String kakaoId = idAttr.toString();
 
-        User user = userRepository.findBySocialId(socialId)
+        User user = userRepository.findByKakaoId(kakaoId)
                 .orElseGet(() -> userRepository.save(
                         User.builder()
-                                .socialId(socialId)
+                                .kakaoId(kakaoId)
                                 .build()
                 ));
 
