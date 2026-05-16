@@ -44,6 +44,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         refreshTokenRepository.save(RefreshToken.of(userId, refreshTokenHash));
 
-        response.sendRedirect(redirectUri + "/oauth2/redirect?token=" + accessToken);
+        response.sendRedirect(redirectUri + "/oauth2/redirect?token=" + accessToken + "&refreshToken=" + refreshToken);
     }
 }

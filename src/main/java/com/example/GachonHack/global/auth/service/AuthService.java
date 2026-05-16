@@ -9,15 +9,13 @@ import com.example.GachonHack.global.auth.exception.AuthException;
 import com.example.GachonHack.global.auth.exception.code.AuthErrorCode;
 import com.example.GachonHack.global.auth.repository.RefreshTokenRepository;
 import com.example.GachonHack.global.config.security.jwt.JwtUtil;
-import com.example.GachonHack.global.util.CookieUtil;
 import com.example.GachonHack.global.util.TokenHashUtil;
 import io.jsonwebtoken.Claims;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -28,12 +26,8 @@ public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Transactional
-    public ResponseEntity<?> reissue(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) {
-        String refreshToken = CookieUtil.get(request, "refreshToken");
-        if (refreshToken == null) {
+    public Map<String, String> reissue(String refreshToken) {
+        if (refreshToken == null || refreshToken.isBlank()) {
             throw new AuthException(AuthErrorCode.NOT_FOUND_REFRESH_TOKEN);
         }
 
@@ -50,29 +44,25 @@ public class AuthService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserErrorCode.NOT_FOUND));
 
-        String newAccess = jwtUtil.createAccessToken(userId, user.getRole().name());
-        String newRefresh = jwtUtil.createRefreshToken(userId);
-        saved.updateTokenHash(TokenHashUtil.hash(newRefresh));
+        String newAccessToken = jwtUtil.createAccessToken(userId, user.getRole().name());
+        String newRefreshToken = jwtUtil.createRefreshToken(userId);
+        saved.updateTokenHash(TokenHashUtil.hash(newRefreshToken));
 
-        response.addHeader("Set-Cookie", CookieUtil.accessToken(newAccess).toString());
-        response.addHeader("Set-Cookie", CookieUtil.refreshToken(newRefresh).toString());
-
-        return ResponseEntity.ok().build();
+        return Map.of(
+                "accessToken", newAccessToken,
+                "refreshToken", newRefreshToken
+        );
     }
 
     @Transactional
-    public void logout(HttpServletRequest request, HttpServletResponse response) {
-        String refreshToken = CookieUtil.get(request, "refreshToken");
-        if (refreshToken != null) {
-            try {
-                Claims claims = jwtUtil.validateToken(refreshToken);
-                Long userId = Long.valueOf(claims.getSubject());
-                refreshTokenRepository.deleteById(userId);
-            } catch (Exception ignored) {
-                // 토큰이 만료/변조됐어도 쿠키 삭제는 진행
-            }
+    public void logout(String refreshToken) {
+        if (refreshToken == null || refreshToken.isBlank()) return;
+        try {
+            Claims claims = jwtUtil.validateToken(refreshToken);
+            Long userId = Long.valueOf(claims.getSubject());
+            refreshTokenRepository.deleteById(userId);
+        } catch (Exception ignored) {
+            // 만료/변조된 토큰도 로그아웃 처리 진행
         }
-        response.addHeader("Set-Cookie", CookieUtil.delete("accessToken").toString());
-        response.addHeader("Set-Cookie", CookieUtil.delete("refreshToken").toString());
     }
 }

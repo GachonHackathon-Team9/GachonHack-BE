@@ -3,11 +3,10 @@ package com.example.GachonHack.global.auth.controller;
 import com.example.GachonHack.global.apiPayload.ApiResponse;
 import com.example.GachonHack.global.auth.exception.code.AuthSuccessCode;
 import com.example.GachonHack.global.auth.service.AuthService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,14 +21,16 @@ public class AuthController implements AuthControllerDocs {
 
     @Override
     @PostMapping("/refresh")
-    public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
-        return authService.reissue(request, response);
+    public ApiResponse<Map<String, String>> reissue(
+            @RequestBody Map<String, String> body
+    ) {
+        return ApiResponse.onSuccess(AuthSuccessCode.REISSUE_SUCCESS, authService.reissue(body.get("refreshToken")));
     }
 
     @Override
     @PostMapping("/logout")
-    public ApiResponse<?> logout(HttpServletRequest request, HttpServletResponse response) {
-        authService.logout(request, response);
+    public ApiResponse<?> logout(@RequestBody Map<String, String> body) {
+        authService.logout(body.get("refreshToken"));
         return ApiResponse.onSuccess(AuthSuccessCode.LOGOUT_SUCCESS, null);
     }
 }
