@@ -18,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class ChatService {
@@ -40,15 +42,36 @@ public class ChatService {
                 .orElseThrow(() -> new CommunityException(CommunityErrorCode.USER_NOT_FOUND));
         Space space = spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new MapException(MapErrorCode.SPACE_NOT_FOUND));
-        ChatRoom room = chatRoomRepository.findFirstBySpaceAndActiveTrueOrderByCreatedAtDesc(space)
-                .orElseThrow(() -> new CommunityException(CommunityErrorCode.CHAT_ROOM_NOT_FOUND));
-
+        ChatRoom room = resolveRoom(space);
+        validateChatAccess(room, userId);
         ChatMessage message = chatMessageRepository.save(ChatMessage.builder()
                 .room(room)
                 .user(user)
                 .body(request.body().trim())
                 .build());
+        return toBroadcast(message, room, user);
+    }
 
+    private ChatRoom resolveRoom(Space space) {
+        Optional<ChatRoom> room = MentoringChatService.isMentoringSpace(space)
+                ? chatRoomRepository.findFirstActiveBySpaceWithParticipants(space)
+                : chatRoomRepository.findFirstActivePublicSpaceRoom(space);
+        return room.orElseThrow(() -> new CommunityException(CommunityErrorCode.CHAT_ROOM_NOT_FOUND));
+    }
+
+    private void validateChatAccess(ChatRoom room, Long userId) {
+        if (room.getBuddyMatch() == null) {
+            return;
+        }
+        var match = room.getBuddyMatch();
+        boolean participant = match.getRequester().getId().equals(userId)
+                || match.getTarget().getId().equals(userId);
+        if (!participant) {
+            throw new CommunityException(CommunityErrorCode.MATCH_REQUEST_FORBIDDEN);
+        }
+    }
+
+    private ChatResponseDTO.MessageBroadcastDTO toBroadcast(ChatMessage message, ChatRoom room, User user) {
         return new ChatResponseDTO.MessageBroadcastDTO(
                 message.getId(),
                 room.getId(),

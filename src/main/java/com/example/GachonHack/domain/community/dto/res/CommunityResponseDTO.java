@@ -64,12 +64,14 @@ public class CommunityResponseDTO {
             Long targetId,
             String targetNickname,
             String targetRealName,
-            Long postId,
             BuddyMatchStatus status,
-            LocalDateTime createdAt
+            LocalDateTime createdAt,
+            LocalDateTime respondedAt,
+            Long chatSpaceId
     ) {}
 
     public record MentoringRequestCreateResDTO(
-            Long id
+            Long id,
+            Long chatSpaceId
     ) {}
 }

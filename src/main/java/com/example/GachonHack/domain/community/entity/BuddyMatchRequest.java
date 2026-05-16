@@ -6,6 +6,8 @@ import com.example.GachonHack.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "buddy_match_requests")
 @Builder
@@ -26,20 +28,15 @@ public class BuddyMatchRequest extends BaseEntity {
     @JoinColumn(name = "target_id", nullable = false)
     private User target;
 
-    @Column(name = "mission_id")
-    private Long missionId;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private BuddyMatchStatus status;
 
-    @Column(name = "requester_grade")
-    private Short requesterGrade;
-
-    @Column(name = "target_grade")
-    private Short targetGrade;
+    @Column(name = "responded_at")
+    private LocalDateTime respondedAt;
 
     public void respond(BuddyMatchStatus status) {
         this.status = status;
+        this.respondedAt = LocalDateTime.now();
     }
 }

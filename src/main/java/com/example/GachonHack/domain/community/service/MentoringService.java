@@ -3,12 +3,14 @@ package com.example.GachonHack.domain.community.service;
 import com.example.GachonHack.domain.community.dto.req.CommunityRequestDTO;
 import com.example.GachonHack.domain.community.dto.res.CommunityResponseDTO;
 import com.example.GachonHack.domain.community.entity.BuddyMatchRequest;
+import com.example.GachonHack.domain.community.entity.ChatRoom;
 import com.example.GachonHack.domain.community.entity.Post;
 import com.example.GachonHack.domain.community.enums.BuddyMatchStatus;
 import com.example.GachonHack.domain.community.enums.PostType;
 import com.example.GachonHack.domain.community.exception.CommunityException;
 import com.example.GachonHack.domain.community.exception.code.CommunityErrorCode;
 import com.example.GachonHack.domain.community.repository.BuddyMatchRequestRepository;
+import com.example.GachonHack.domain.community.repository.ChatRoomRepository;
 import com.example.GachonHack.domain.community.repository.PostRepository;
 import com.example.GachonHack.domain.user.entity.User;
 import com.example.GachonHack.domain.user.repository.UserRepository;
@@ -30,6 +32,8 @@ public class MentoringService {
     private final BuddyMatchRequestRepository buddyMatchRequestRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final MentoringChatService mentoringChatService;
+    private final ChatRoomRepository chatRoomRepository;
 
     @Transactional
     public CommunityResponseDTO.MentoringRequestCreateResDTO createRequest(
@@ -44,16 +48,16 @@ public class MentoringService {
         if (buddyMatchRequestRepository.existsActiveBetweenUsers(requester, target, ACTIVE_STATUSES)) {
             throw new CommunityException(CommunityErrorCode.DUPLICATE_MATCH_REQUEST);
         }
-        Long missionId = resolveMissionId(request.postId());
         BuddyMatchRequest saved = buddyMatchRequestRepository.save(BuddyMatchRequest.builder()
                 .requester(requester)
                 .target(target)
-                .missionId(missionId)
                 .status(BuddyMatchStatus.PENDING)
-                .requesterGrade(requester.getGrade())
-                .targetGrade(target.getGrade())
                 .build());
-        return new CommunityResponseDTO.MentoringRequestCreateResDTO(saved.getId());
+        ChatRoom chatRoom = mentoringChatService.createRoomForMatch(saved);
+        return new CommunityResponseDTO.MentoringRequestCreateResDTO(
+                saved.getId(),
+                chatRoom.getSpace().getId()
+        );
     }
 
     @Transactional
@@ -116,15 +120,6 @@ public class MentoringService {
                 .toList();
     }
 
-    private Long resolveMissionId(Long postId) {
-        if (postId == null) {
-            return null;
-        }
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new CommunityException(CommunityErrorCode.POST_NOT_FOUND));
-        return post.getId();
-    }
-
     private User findUser(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new CommunityException(CommunityErrorCode.USER_NOT_FOUND));
@@ -133,6 +128,9 @@ public class MentoringService {
     private CommunityResponseDTO.MentoringRequestDTO toDto(BuddyMatchRequest request) {
         User requester = request.getRequester();
         User target = request.getTarget();
+        Long chatSpaceId = chatRoomRepository.findByBuddyMatchAndActiveTrue(request)
+                .map(room -> room.getSpace().getId())
+                .orElse(null);
         return new CommunityResponseDTO.MentoringRequestDTO(
                 request.getId(),
                 requester.getId(),
@@ -141,9 +139,10 @@ public class MentoringService {
                 target.getId(),
                 target.getNickname(),
                 target.getRealName(),
-                request.getMissionId(),
                 request.getStatus(),
-                request.getCreatedAt()
+                request.getCreatedAt(),
+                request.getRespondedAt(),
+                chatSpaceId
         );
     }
 }
