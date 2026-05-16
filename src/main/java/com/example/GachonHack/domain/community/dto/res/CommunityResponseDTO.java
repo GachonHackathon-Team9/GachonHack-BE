@@ -66,7 +66,6 @@ public class CommunityResponseDTO {
             String targetRealName,
             BuddyMatchStatus status,
             LocalDateTime createdAt,
-            LocalDateTime respondedAt,
             Long chatSpaceId
     ) {}
 

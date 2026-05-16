@@ -6,8 +6,6 @@ import com.example.GachonHack.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "buddy_match_requests")
 @Builder
@@ -34,6 +32,5 @@ public class BuddyMatchRequest extends BaseEntity {
 
     public void respond(BuddyMatchStatus status) {
         this.status = status;
-        this.respondedAt = LocalDateTime.now();
     }
 }
